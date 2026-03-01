@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Plan de Fuerza</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --peach: #FFB347;
+    --mint: #4ECDC4;
+    --lavender: #A29BFE;
+    --rose: #FD79A8;
+    --cream: #FFF9F0;
+    --charcoal: #2D3436;
+    --mid: #636E72;
+    --light: #DFE6E9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--charcoal); min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 50%, var(--rose) 100%);
+    padding: 2rem 1.5rem 3rem; position: relative; overflow: hidden;
+  }
+  .header::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.1); }
+  .header::after { content:''; position:absolute; bottom:-60px; left:20%; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,0.07); }
+  .header h1 { font-family:'Fraunces',serif; font-size:2rem; color:white; position:relative; z-index:1; }
+  .header p { color:rgba(255,255,255,0.9); font-size:0.9rem; margin-top:0.4rem; position:relative; z-index:1; }
+  .header-stats { display:flex; gap:1rem; margin-top:1.2rem; position:relative; z-index:1; flex-wrap:wrap; }
+  .stat-badge { background:rgba(255,255,255,0.25); border-radius:20px; padding:0.3rem 0.8rem; font-size:0.78rem; color:white; font-weight:600; backdrop-filter:blur(4px); }
+
+  .progress-section { background:white; margin:1rem; border-radius:16px; padding:1.2rem; box-shadow:0 2px 20px rgba(0,0,0,0.06); }
+  .progress-label { display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; margin-bottom:0.6rem; }
+  .progress-bar { background:var(--light); border-radius:20px; height:12px; overflow:hidden; }
+  .progress-fill { background:linear-gradient(90deg,var(--coral),var(--peach)); height:100%; border-radius:20px; transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
+  .week-complete-msg { display:none; text-align:center; margin-top:0.8rem; font-size:0.85rem; font-weight:600; color:var(--coral); }
+
+  .week-nav { display:flex; align-items:center; justify-content:space-between; padding:0 1rem; margin:0.5rem 0; }
+  .week-nav h2 { font-family:'Fraunces',serif; font-size:1.3rem; }
+  .week-btn { background:white; border:2px solid var(--light); border-radius:10px; padding:0.4rem 0.8rem; cursor:pointer; font-size:1rem; color:var(--mid); transition:all 0.2s; }
+  .week-btn:hover { border-color:var(--coral); color:var(--coral); }
+  .week-btn:disabled { opacity:0.3; cursor:default; }
+
+  .day-tabs { display:flex; gap:0.5rem; padding:0 1rem; overflow-x:auto; scrollbar-width:none; margin:0.8rem 0; }
+  .day-tabs::-webkit-scrollbar { display:none; }
+  .day-tab { flex-shrink:0; padding:0.5rem 1rem; border-radius:30px; border:2px solid var(--light); background:white; cursor:pointer; font-size:0.82rem; font-weight:600; color:var(--mid); transition:all 0.2s; position:relative; }
+  .day-tab.active { background:linear-gradient(135deg,var(--coral),var(--peach)); border-color:transparent; color:white; box-shadow:0 4px 15px rgba(255,107,107,0.35); }
+  .day-tab.done-day::after { content:'✓'; position:absolute; top:-6px; right:-6px; background:var(--mint); color:white; width:16px; height:16px; border-radius:50%; font-size:0.6rem; display:flex; align-items:center; justify-content:center; }
+
+  .day-content { padding:0 1rem 2rem; }
+  .day-header { background:linear-gradient(135deg,#f8f9fa,#fff); border-radius:14px; padding:1rem 1.2rem; margin-bottom:1rem; border-left:4px solid var(--mint); }
+  .day-header h3 { font-family:'Fraunces',serif; font-size:1.1rem; }
+  .day-header p { font-size:0.82rem; color:var(--mid); margin-top:0.3rem; }
+  .day-tag { display:inline-block; background:var(--mint); color:white; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:20px; margin-top:0.5rem; }
+  .day-tag.rest { background:var(--lavender); }
+  .day-tag.mobility { background:var(--rose); }
+
+  /* EXERCISE CARD */
+  .exercise-card { background:white; border-radius:16px; margin-bottom:1rem; box-shadow:0 2px 16px rgba(0,0,0,0.06); overflow:hidden; border:2px solid transparent; }
+  .exercise-card.completed { border-color:var(--mint); background:linear-gradient(135deg,#f0fffe,white); }
+  .card-top { display:flex; align-items:center; padding:1rem; gap:1rem; cursor:pointer; }
+  .exercise-emoji { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+  .card-info { flex:1; }
+  .card-info h4 { font-weight:600; font-size:0.95rem; }
+  .card-meta { display:flex; gap:0.5rem; margin-top:0.4rem; flex-wrap:wrap; }
+  .meta-pill { font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:20px; color:white; }
+  .pill-reps { background:var(--coral); }
+  .pill-sets { background:var(--lavender); }
+  .pill-rest { background:var(--peach); color:var(--charcoal); }
+  .pill-time { background:var(--mint); }
+
+  .check-btn { width:36px; height:36px; border-radius:50%; border:2.5px solid var(--light); background:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:all 0.25s; flex-shrink:0; }
+  .check-btn.checked { background:var(--mint); border-color:var(--mint); color:white; }
+
+  .card-detail { display:none; padding:0 1rem 1rem; border-top:1px solid #f0f0f0; }
+  .card-detail.open { display:block; }
+  .detail-text { font-size:0.82rem; color:var(--mid); line-height:1.6; margin-bottom:0.8rem; padding-top:0.8rem; }
+
+  /* SVG ILLUSTRATION AREA */
+  .exercise-visual-container {
+    background: linear-gradient(135deg, #f8f9ff, #fff0f8);
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid #ffe0e0;
+  }
+  .visual-title {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .poses-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .pose-block {
+    flex: 1;
+    text-align: center;
+  }
+  .pose-block svg { width: 100%; max-width: 110px; height: auto; }
+  .pose-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin-top: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .pose-label.start { background: #ffe0e0; color: var(--coral); }
+  .pose-label.end { background: #d0fff5; color: #00897b; }
+  .arrow-middle { font-size: 1.5rem; color: var(--peach); flex-shrink: 0; margin-top: -20px; }
+
+  .phases { display:flex; gap:0.5rem; margin-top:0.8rem; }
+  .phase { flex:1; background:#f8f9fa; border-radius:10px; padding:0.6rem; text-align:center; font-size:0.72rem; }
+  .phase-num { font-family:'Fraunces',serif; font-size:1rem; display:block; margin-bottom:0.2rem; }
+  .phase-1 .phase-num { color:var(--coral); }
+  .phase-2 .phase-num { color:var(--peach); }
+  .phase-3 .phase-num { color:var(--mint); }
+  .tip-box { background:linear-gradient(135deg,#fff5f0,#fff9f5); border-radius:10px; padding:0.7rem 0.9rem; font-size:0.78rem; color:var(--charcoal); border-left:3px solid var(--coral); line-height:1.5; margin-top:0.6rem; }
+  .tip-box strong { color:var(--coral); }
+
+  .rest-day-card { background:linear-gradient(135deg,#f3f0ff,#fff0f8); border-radius:16px; padding:2rem; text-align:center; border:2px dashed var(--lavender); }
+  .rest-day-card .big-emoji { font-size:3rem; display:block; margin-bottom:0.8rem; }
+  .rest-day-card h3 { font-family:'Fraunces',serif; margin-bottom:0.5rem; }
+  .rest-day-card p { font-size:0.85rem; color:var(--mid); line-height:1.6; }
+
+  .notes-card { background:linear-gradient(135deg,#fffbf0,#fff5f0); border-radius:16px; padding:1.2rem; margin-bottom:1rem; border:1px solid #ffe0c0; }
+  .notes-card h4 { font-family:'Fraunces',serif; font-size:1rem; margin-bottom:0.6rem; }
+  .notes-card ul { padding-left:1.2rem; }
+  .notes-card li { font-size:0.8rem; color:var(--mid); margin-bottom:0.3rem; line-height:1.5; }
+
+  .bottom-bar { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--light); padding:0.8rem 1rem; display:flex; gap:0.8rem; }
+  .reset-btn { flex:1; padding:0.7rem; border-radius:12px; border:2px solid var(--light); background:white; cursor:pointer; font-size:0.8rem; font-weight:600; color:var(--mid); transition:all 0.2s; }
+  .reset-btn:hover { border-color:var(--coral); color:var(--coral); }
+  .done-all-btn { flex:2; padding:0.7rem; border-radius:12px; border:none; background:linear-gradient(135deg,var(--coral),var(--peach)); cursor:pointer; font-size:0.85rem; font-weight:700; color:white; box-shadow:0 4px 15px rgba(255,107,107,0.3); transition:all 0.2s; }
+  .done-all-btn:hover { transform:translateY(-1px); }
+  .spacer { height:80px; }
+
+  @keyframes popIn { 0%{transform:scale(0.8);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+  .pop { animation:popIn 0.35s ease; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💪 Mi Plan de Fuerza</h1>
+  <p>Plan personalizado · Nivel principiante · Semana en curso</p>
+  <div class="header-stats">
+    <span class="stat-badge">3 días fuerza</span>
+    <span class="stat-badge">1 día movilidad</span>
+    <span class="stat-badge">3 días descanso</span>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-label">
+    <span>Progreso semanal</span>
+    <span id="progress-text">0 / 0 ejercicios</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="week-complete-msg" id="week-msg">🎉 ¡Semana completada! Eres increíble.</div>
+</div>
+
+<div class="week-nav">
+  <button class="week-btn" id="prev-week" onclick="changeWeek(-1)" disabled>◀</button>
+  <h2 id="week-title">Semana 1 — Adaptación</h2>
+  <button class="week-btn" id="next-week" onclick="changeWeek(1)">▶</button>
+</div>
+
+<div class="day-tabs" id="day-tabs"></div>
+<div class="day-content" id="day-content"></div>
+<div class="spacer"></div>
+
+<div class="bottom-bar">
+  <button class="reset-btn" onclick="resetDay()">🔄 Reiniciar día</button>
+  <button class="done-all-btn" onclick="completeDay()">✓ Marcar todo el día</button>
+</div>
+
+<script>
+// ============================================================
+// SVG ILLUSTRATIONS
+// Colors: coral body #FF6B6B, joints #FFB347, lines #2D3436
+// ============================================================
+const SVG = {
+
+  // SENTADILLA DE PIE (posición inicial)
+  squatStand: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- cabeza -->
+    <circle cx="40" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso -->
+    <line x1="40" y1="30" x2="40" y2="80" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazo izq -->
+    <line x1="40" y1="40" x2="18" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="18" y1="65" x2="18" y2="85" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- brazo der -->
+    <line x1="40" y1="40" x2="62" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="62" y1="65" x2="62" y2="85" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera -->
+    <circle cx="40" cy="80" r="5" fill="#FFB347"/>
+    <!-- pierna izq -->
+    <line x1="40" y1="80" x2="30" y2="120" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="30" y1="120" x2="28" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pierna der -->
+    <line x1="40" y1="80" x2="50" y2="120" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="120" x2="52" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- rodillas -->
+    <circle cx="30" cy="120" r="4" fill="#FFB347"/>
+    <circle cx="50" cy="120" r="4" fill="#FFB347"/>
+    <!-- pies -->
+    <line x1="28" y1="155" x2="18" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="52" y1="155" x2="62" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // SENTADILLA ABAJO (posición final)
+  squatDown: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- cabeza -->
+    <circle cx="40" cy="28" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso inclinado -->
+    <line x1="40" y1="40" x2="38" y2="85" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos al frente -->
+    <line x1="39" y1="50" x2="15" y2="60" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="15" y1="60" x2="10" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="39" y1="50" x2="63" y2="60" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="63" y1="60" x2="68" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera baja -->
+    <circle cx="38" cy="85" r="5" fill="#FFB347"/>
+    <!-- pierna izq doblada -->
+    <line x1="38" y1="85" x2="20" y2="110" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="20" y1="110" x2="22" y2="148" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pierna der doblada -->
+    <line x1="38" y1="85" x2="56" y2="110" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="56" y1="110" x2="58" y2="148" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- rodillas -->
+    <circle cx="20" cy="110" r="4" fill="#FFB347"/>
+    <circle cx="56" cy="110" r="4" fill="#FFB347"/>
+    <!-- pies -->
+    <line x1="22" y1="148" x2="10" y2="152" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="58" y1="148" x2="70" y2="152" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // PUENTE GLÚTEOS - tumbada
+  bridgeDown: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- suelo -->
+    <line x1="5" y1="70" x2="155" y2="70" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="15" cy="52" r="10" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso en suelo -->
+    <line x1="25" y1="55" x2="80" y2="60" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos -->
+    <line x1="40" y1="58" x2="38" y2="70" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="65" y1="60" x2="63" y2="70" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera en suelo -->
+    <circle cx="80" cy="62" r="5" fill="#FFB347"/>
+    <!-- muslos -->
+    <line x1="80" y1="62" x2="100" y2="45" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="80" y1="62" x2="96" y2="45" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- rodillas -->
+    <circle cx="98" cy="45" r="4" fill="#FFB347"/>
+    <!-- piernas -->
+    <line x1="98" y1="45" x2="118" y2="68" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pies -->
+    <line x1="118" y1="68" x2="135" y2="70" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // PUENTE GLÚTEOS - arriba
+  bridgeUp: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- suelo -->
+    <line x1="5" y1="70" x2="155" y2="70" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="15" cy="55" r="10" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso elevado -->
+    <line x1="25" y1="58" x2="80" y2="35" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos en suelo -->
+    <line x1="40" y1="55" x2="38" y2="70" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="62" y1="47" x2="60" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera arriba -->
+    <circle cx="80" cy="35" r="5" fill="#FFB347"/>
+    <!-- muslos -->
+    <line x1="80" y1="35" x2="100" y2="50" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- rodillas -->
+    <circle cx="100" cy="50" r="4" fill="#FFB347"/>
+    <!-- piernas verticales -->
+    <line x1="100" y1="50" x2="115" y2="70" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pies -->
+    <line x1="115" y1="70" x2="130" y2="70" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <!-- línea glúteo resaltado -->
+    <path d="M 70,28 Q 80,22 90,28" stroke="#FFB347" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+  </svg>`,
+
+  // FLEXIÓN EN PARED - de pie apoyada
+  wallPushStart: `<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- pared -->
+    <rect x="95" y="0" width="8" height="160" fill="#DFE6E9" rx="2"/>
+    <!-- cabeza -->
+    <circle cx="55" cy="22" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso -->
+    <line x1="55" y1="34" x2="60" y2="80" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos extendidos hacia pared -->
+    <line x1="57" y1="45" x2="95" y2="50" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="57" y1="45" x2="95" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- manos en pared -->
+    <circle cx="95" cy="50" r="4" fill="#FFB347"/>
+    <circle cx="95" cy="62" r="4" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="60" cy="80" r="5" fill="#FFB347"/>
+    <!-- piernas rectas -->
+    <line x1="60" y1="80" x2="52" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="52" y1="125" x2="50" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="80" x2="68" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="68" y1="125" x2="70" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="52" cy="125" r="4" fill="#FFB347"/>
+    <circle cx="68" cy="125" r="4" fill="#FFB347"/>
+    <!-- pies -->
+    <line x1="50" y1="155" x2="35" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="70" y1="155" x2="55" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // FLEXIÓN EN PARED - acercada
+  wallPushEnd: `<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- pared -->
+    <rect x="95" y="0" width="8" height="160" fill="#DFE6E9" rx="2"/>
+    <!-- cabeza cerca de pared -->
+    <circle cx="78" cy="22" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso inclinado -->
+    <line x1="78" y1="34" x2="65" y2="80" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- codos doblados -->
+    <line x1="75" y1="45" x2="95" y2="38" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="75" y1="45" x2="95" y2="55" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="95" cy="38" r="4" fill="#FFB347"/>
+    <circle cx="95" cy="55" r="4" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="65" cy="80" r="5" fill="#FFB347"/>
+    <!-- piernas -->
+    <line x1="65" y1="80" x2="55" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="125" x2="45" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="65" y1="80" x2="75" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="75" y1="125" x2="65" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="55" cy="125" r="4" fill="#FFB347"/>
+    <circle cx="75" cy="125" r="4" fill="#FFB347"/>
+    <line x1="45" y1="155" x2="30" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="65" y1="155" x2="50" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // BIRD DOG - posición inicial (a 4 patas)
+  birdDogStart: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- suelo -->
+    <line x1="5" y1="88" x2="155" y2="88" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="22" cy="42" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso horizontal -->
+    <line x1="33" y1="45" x2="110" y2="45" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazo izq apoyado -->
+    <line x1="45" y1="45" x2="45" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="45" cy="72" r="3" fill="#FFB347"/>
+    <!-- brazo der apoyado -->
+    <line x1="75" y1="45" x2="75" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="75" cy="72" r="3" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="110" cy="45" r="5" fill="#FFB347"/>
+    <!-- rodilla izq apoyada -->
+    <line x1="100" y1="45" x2="100" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="100" cy="70" r="3" fill="#FFB347"/>
+    <!-- rodilla der apoyada -->
+    <line x1="120" y1="45" x2="120" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="120" cy="70" r="3" fill="#FFB347"/>
+  </svg>`,
+
+  // BIRD DOG - extendida
+  birdDogEnd: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- suelo -->
+    <line x1="5" y1="88" x2="155" y2="88" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="22" cy="42" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso horizontal -->
+    <line x1="33" y1="45" x2="100" y2="45" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazo izq extendido al frente -->
+    <line x1="45" y1="45" x2="8" y2="38" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="8" cy="38" r="3" fill="#FFB347"/>
+    <!-- brazo der apoyado -->
+    <line x1="72" y1="45" x2="72" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="72" cy="70" r="3" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="100" cy="45" r="5" fill="#FFB347"/>
+    <!-- rodilla izq apoyada -->
+    <line x1="88" y1="45" x2="88" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="88" cy="70" r="3" fill="#FFB347"/>
+    <!-- pierna der extendida atrás -->
+    <line x1="100" y1="45" x2="148" y2="38" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="148" cy="38" r="3" fill="#FFB347"/>
+    <!-- flechas de dirección -->
+    <text x="2" y="33" font-size="8" fill="#4ECDC4">←</text>
+    <text x="148" y="33" font-size="8" fill="#4ECDC4">→</text>
+  </svg>`,
+
+  // ZANCADA ESTÁTICA - de pie
+  lungeStand: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="40" y1="30" x2="40" y2="78" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="18" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="18" y1="62" x2="16" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="62" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="62" y1="62" x2="64" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="40" cy="78" r="5" fill="#FFB347"/>
+    <!-- pierna delantera -->
+    <line x1="40" y1="78" x2="30" y2="115" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="30" y1="115" x2="28" y2="152" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pierna trasera -->
+    <line x1="40" y1="78" x2="52" y2="115" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="52" y1="115" x2="60" y2="152" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="30" cy="115" r="4" fill="#FFB347"/>
+    <circle cx="52" cy="115" r="4" fill="#FFB347"/>
+    <line x1="28" y1="152" x2="14" y2="156" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="152" x2="72" y2="156" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // ZANCADA ESTÁTICA - abajo
+  lungeDown: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- suelo -->
+    <line x1="0" y1="158" x2="80" y2="158" stroke="#DFE6E9" stroke-width="2"/>
+    <circle cx="35" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="35" y1="30" x2="33" y2="78" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="34" y1="44" x2="14" y2="60" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="14" y1="60" x2="12" y2="76" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="34" y1="44" x2="55" y2="60" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="55" y1="60" x2="57" y2="76" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="33" cy="78" r="5" fill="#FFB347"/>
+    <!-- pierna delantera doblada -->
+    <line x1="33" y1="78" x2="20" y2="112" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="20" y1="112" x2="18" y2="152" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- pierna trasera en suelo -->
+    <line x1="33" y1="78" x2="55" y2="112" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="112" x2="62" y2="152" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="20" cy="112" r="4" fill="#FFB347"/>
+    <circle cx="55" cy="112" r="4" fill="#FFB347"/>
+    <!-- rodilla en suelo -->
+    <circle cx="62" cy="152" r="5" fill="#FFB347" stroke="#FF6B6B" stroke-width="2"/>
+    <line x1="18" y1="152" x2="5" y2="156" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // SUPERMAN - tumbada boca abajo
+  supermanDown: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="58" x2="155" y2="58" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza abajo -->
+    <circle cx="20" cy="45" r="10" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso horizontal -->
+    <line x1="30" y1="48" x2="110" y2="48" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazos al lado del cuerpo -->
+    <line x1="45" y1="48" x2="42" y2="58" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="70" y1="48" x2="67" y2="58" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera -->
+    <circle cx="110" cy="48" r="5" fill="#FFB347"/>
+    <!-- piernas rectas -->
+    <line x1="110" y1="48" x2="135" y2="52" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="110" y1="48" x2="135" y2="44" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+  </svg>`,
+
+  // SUPERMAN - elevada
+  supermanUp: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="58" x2="155" y2="58" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza elevada -->
+    <circle cx="20" cy="35" r="10" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso arqueado -->
+    <path d="M 30,42 Q 70,30 110,42" stroke="#FF6B6B" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- brazos extendidos -->
+    <line x1="38" y1="38" x2="8" y2="28" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="55" y1="33" x2="30" y2="22" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera -->
+    <circle cx="110" cy="42" r="5" fill="#FFB347"/>
+    <!-- piernas elevadas -->
+    <line x1="110" y1="42" x2="138" y2="32" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="110" y1="42" x2="138" y2="42" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- flechas -->
+    <text x="2" y="25" font-size="9" fill="#4ECDC4">↑</text>
+    <text x="138" y="28" font-size="9" fill="#4ECDC4">↑</text>
+  </svg>`,
+
+  // REMO CON TOALLA - inicial
+  rowStart: `<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- puerta -->
+    <rect x="0" y="0" width="10" height="160" fill="#DFE6E9" rx="2"/>
+    <circle cx="10" cy="80" r="5" fill="#FFB347" stroke="#2D3436" stroke-width="1"/>
+    <!-- toalla -->
+    <line x1="10" y1="70" x2="40" y2="65" stroke="#A29BFE" stroke-width="3" stroke-dasharray="4,2"/>
+    <line x1="10" y1="90" x2="40" y2="75" stroke="#A29BFE" stroke-width="3" stroke-dasharray="4,2"/>
+    <!-- persona inclinada atrás -->
+    <circle cx="80" cy="30" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso inclinado -->
+    <line x1="80" y1="42" x2="55" y2="85" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos extendidos -->
+    <line x1="70" y1="58" x2="40" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="70" y1="58" x2="40" y2="75" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="40" cy="65" r="4" fill="#FFB347"/>
+    <circle cx="40" cy="75" r="4" fill="#FFB347"/>
+    <!-- piernas -->
+    <circle cx="55" cy="85" r="5" fill="#FFB347"/>
+    <line x1="55" y1="85" x2="45" y2="128" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="45" y1="128" x2="42" y2="158" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="85" x2="65" y2="128" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="65" y1="128" x2="68" y2="158" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="45" cy="128" r="4" fill="#FFB347"/>
+    <circle cx="65" cy="128" r="4" fill="#FFB347"/>
+    <line x1="42" y1="158" x2="28" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="68" y1="158" x2="80" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // REMO CON TOALLA - tirada
+  rowEnd: `<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- puerta -->
+    <rect x="0" y="0" width="10" height="160" fill="#DFE6E9" rx="2"/>
+    <circle cx="10" cy="80" r="5" fill="#FFB347" stroke="#2D3436" stroke-width="1"/>
+    <!-- toalla -->
+    <line x1="10" y1="70" x2="30" y2="68" stroke="#A29BFE" stroke-width="3" stroke-dasharray="4,2"/>
+    <line x1="10" y1="90" x2="30" y2="78" stroke="#A29BFE" stroke-width="3" stroke-dasharray="4,2"/>
+    <!-- persona más erguida y cerca -->
+    <circle cx="65" cy="28" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="65" y1="40" x2="48" y2="82" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- codos doblados -->
+    <line x1="58" y1="55" x2="30" y2="68" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="30" y1="68" x2="18" y2="68" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="58" y1="55" x2="30" y2="78" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="30" y1="78" x2="18" y2="78" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="18" cy="68" r="4" fill="#FFB347"/>
+    <circle cx="18" cy="78" r="4" fill="#FFB347"/>
+    <circle cx="48" cy="82" r="5" fill="#FFB347"/>
+    <line x1="48" y1="82" x2="38" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="38" y1="125" x2="35" y2="158" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="48" y1="82" x2="58" y2="125" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="58" y1="125" x2="62" y2="158" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="38" cy="125" r="4" fill="#FFB347"/>
+    <circle cx="58" cy="125" r="4" fill="#FFB347"/>
+    <line x1="35" y1="158" x2="20" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="62" y1="158" x2="74" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // PLANCHA - posición
+  plankPos: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="72" x2="155" y2="72" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="18" cy="38" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso recto -->
+    <line x1="29" y1="42" x2="118" y2="42" stroke="#FF6B6B" stroke-width="7" stroke-linecap="round"/>
+    <!-- codo izq -->
+    <line x1="45" y1="42" x2="45" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="38" y1="72" x2="52" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- codo der -->
+    <line x1="72" y1="42" x2="72" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="65" y1="72" x2="79" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera -->
+    <circle cx="118" cy="42" r="5" fill="#FFB347"/>
+    <!-- rodillas en suelo (versión rodillas) -->
+    <line x1="118" y1="42" x2="128" y2="65" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="128" cy="65" r="5" fill="#FFB347" stroke="#FF6B6B" stroke-width="2"/>
+    <line x1="118" y1="42" x2="108" y2="65" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="108" cy="65" r="5" fill="#FFB347" stroke="#FF6B6B" stroke-width="2"/>
+    <!-- línea de cuerpo recto -->
+    <line x1="18" y1="38" x2="118" y2="42" stroke="#4ECDC4" stroke-width="1" stroke-dasharray="5,3" opacity="0.6"/>
+  </svg>`,
+
+  // BISAGRA CADERA - de pie
+  hingStand: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="40" y1="30" x2="40" y2="80" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="18" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="18" y1="62" x2="16" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="62" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="62" y1="62" x2="64" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="40" cy="80" r="5" fill="#FFB347"/>
+    <line x1="40" y1="80" x2="30" y2="122" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="30" y1="122" x2="28" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="40" y1="80" x2="50" y2="122" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="122" x2="52" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="30" cy="122" r="4" fill="#FFB347"/>
+    <circle cx="50" cy="122" r="4" fill="#FFB347"/>
+    <line x1="28" y1="155" x2="14" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="52" y1="155" x2="66" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // BISAGRA CADERA - inclinada (bisagra)
+  hingDown: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <line x1="0" y1="158" x2="80" y2="158" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza abajo -->
+    <circle cx="16" cy="58" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso paralelo al suelo -->
+    <line x1="28" y1="60" x2="62" y2="62" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos colgando -->
+    <line x1="35" y1="62" x2="32" y2="90" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="50" y1="62" x2="47" y2="90" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera arriba -->
+    <circle cx="62" cy="62" r="5" fill="#FFB347"/>
+    <!-- flecha cadera atrás -->
+    <text x="62" y="52" font-size="10" fill="#4ECDC4">←</text>
+    <!-- piernas rectas -->
+    <line x1="62" y1="62" x2="52" y2="115" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="52" y1="115" x2="50" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="62" y1="62" x2="68" y2="115" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="68" y1="115" x2="70" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="52" cy="115" r="4" fill="#FFB347"/>
+    <circle cx="68" cy="115" r="4" fill="#FFB347"/>
+    <line x1="50" y1="155" x2="36" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="70" y1="155" x2="80" y2="158" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // DEAD BUG - posición inicial
+  deadBugStart: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="58" x2="155" y2="58" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="80" cy="45" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso tumbada -->
+    <line x1="80" y1="56" x2="80" y2="20" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazos arriba -->
+    <line x1="80" y1="35" x2="55" y2="18" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="35" x2="105" y2="18" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="55" cy="18" r="4" fill="#FFB347"/>
+    <circle cx="105" cy="18" r="4" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="80" cy="56" r="5" fill="#FFB347"/>
+    <!-- piernas arriba dobladas (tabla) -->
+    <line x1="80" y1="56" x2="58" y2="38" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="58" cy="38" r="4" fill="#FFB347"/>
+    <line x1="58" y1="38" x2="52" y2="58" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="56" x2="102" y2="38" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="102" cy="38" r="4" fill="#FFB347"/>
+    <line x1="102" y1="38" x2="108" y2="58" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+  </svg>`,
+
+  // DEAD BUG - extendida
+  deadBugEnd: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="58" x2="155" y2="58" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="80" cy="45" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso -->
+    <line x1="80" y1="56" x2="80" y2="20" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazo der extendido -->
+    <line x1="80" y1="32" x2="115" y2="18" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="115" y1="18" x2="148" y2="12" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="148" cy="12" r="4" fill="#FFB347"/>
+    <!-- brazo izq doblado (apoyo) -->
+    <line x1="80" y1="32" x2="55" y2="18" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="55" cy="18" r="4" fill="#FFB347"/>
+    <!-- cadera -->
+    <circle cx="80" cy="56" r="5" fill="#FFB347"/>
+    <!-- pierna izq extendida -->
+    <line x1="80" y1="56" x2="55" y2="42" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="55" y1="42" x2="18" y2="36" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="18" cy="36" r="4" fill="#FFB347"/>
+    <!-- pierna der doblada (apoyo) -->
+    <line x1="80" y1="56" x2="102" y2="38" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="102" cy="38" r="4" fill="#FFB347"/>
+    <line x1="102" y1="38" x2="108" y2="58" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- flechas -->
+    <text x="148" y="10" font-size="8" fill="#4ECDC4">→</text>
+    <text x="10" y="34" font-size="8" fill="#4ECDC4">←</text>
+  </svg>`,
+
+  // SENTADILLA SUMO - pie
+  sumoStand: `<svg viewBox="0 0 90 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="45" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="45" y1="30" x2="45" y2="80" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="45" y1="42" x2="20" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="20" y1="62" x2="18" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="45" y1="42" x2="70" y2="62" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="70" y1="62" x2="72" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="45" cy="80" r="5" fill="#FFB347"/>
+    <!-- piernas abiertas -->
+    <line x1="45" y1="80" x2="22" y2="120" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="22" y1="120" x2="18" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="45" y1="80" x2="68" y2="120" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="68" y1="120" x2="72" y2="155" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="22" cy="120" r="4" fill="#FFB347"/>
+    <circle cx="68" cy="120" r="4" fill="#FFB347"/>
+    <!-- pies muy abiertos -->
+    <line x1="18" y1="155" x2="4" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="72" y1="155" x2="86" y2="160" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // SENTADILLA SUMO - abajo
+  sumoDown: `<svg viewBox="0 0 90 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="45" cy="30" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="45" y1="42" x2="43" y2="88" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos al frente -->
+    <line x1="44" y1="55" x2="18" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="44" y1="55" x2="70" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="18" cy="65" r="4" fill="#FFB347"/>
+    <circle cx="70" cy="65" r="4" fill="#FFB347"/>
+    <circle cx="43" cy="88" r="5" fill="#FFB347"/>
+    <!-- piernas muy abiertas y dobladas -->
+    <line x1="43" y1="88" x2="15" y2="110" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="15" y1="110" x2="10" y2="148" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="43" y1="88" x2="71" y2="110" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="71" y1="110" x2="80" y2="148" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="15" cy="110" r="4" fill="#FFB347"/>
+    <circle cx="71" cy="110" r="4" fill="#FFB347"/>
+    <line x1="10" y1="148" x2="0" y2="154" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+    <line x1="80" y1="148" x2="90" y2="154" stroke="#2D3436" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+
+  // MOVILIDAD TORÁCICA - inicial
+  thoracicStart: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="72" x2="155" y2="72" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- rodillo/toalla -->
+    <ellipse cx="80" cy="65" rx="35" ry="6" fill="#A29BFE" opacity="0.5"/>
+    <!-- cabeza -->
+    <circle cx="80" cy="22" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso en rodillo -->
+    <line x1="80" y1="33" x2="80" y2="62" stroke="#FF6B6B" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazos cruzados en pecho -->
+    <line x1="80" y1="42" x2="62" y2="48" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="62" y1="48" x2="68" y2="55" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="42" x2="98" y2="48" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="98" y1="48" x2="92" y2="55" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- piernas dobladas -->
+    <circle cx="80" cy="62" r="5" fill="#FFB347"/>
+    <line x1="80" y1="62" x2="60" y2="58" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="58" x2="52" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="62" x2="100" y2="58" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="100" y1="58" x2="108" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+  </svg>`,
+
+  // MOVILIDAD TORÁCICA - extendida
+  thoracicEnd: `<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="72" x2="155" y2="72" stroke="#DFE6E9" stroke-width="2"/>
+    <ellipse cx="80" cy="65" rx="35" ry="6" fill="#A29BFE" opacity="0.5"/>
+    <!-- cabeza caída atrás -->
+    <circle cx="80" cy="30" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso arqueado sobre rodillo -->
+    <path d="M 80,41 Q 80,55 80,62" stroke="#FF6B6B" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- brazos abiertos atrás -->
+    <line x1="80" y1="48" x2="48" y2="38" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="48" y1="38" x2="30" y2="30" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="48" x2="112" y2="38" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="112" y1="38" x2="130" y2="30" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="80" cy="62" r="5" fill="#FFB347"/>
+    <line x1="80" y1="62" x2="60" y2="58" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="60" y1="58" x2="52" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="62" x2="100" y2="58" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="100" y1="58" x2="108" y2="72" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <text x="25" y="28" font-size="9" fill="#4ECDC4">↓</text>
+    <text x="128" y="28" font-size="9" fill="#4ECDC4">↓</text>
+  </svg>`,
+
+  // 9090 - posición
+  hip9090: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="88" x2="155" y2="88" stroke="#DFE6E9" stroke-width="2"/>
+    <!-- sentada -->
+    <circle cx="80" cy="22" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- torso -->
+    <line x1="80" y1="34" x2="80" y2="68" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- brazos apoyo -->
+    <line x1="80" y1="50" x2="55" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="55" y1="65" x2="50" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="50" x2="105" y2="65" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="105" y1="65" x2="110" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cadera -->
+    <circle cx="80" cy="68" r="5" fill="#FFB347"/>
+    <!-- pierna delantera 90° -->
+    <line x1="80" y1="68" x2="40" y2="70" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="40" cy="70" r="4" fill="#FFB347"/>
+    <line x1="40" y1="70" x2="30" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- pierna trasera 90° -->
+    <line x1="80" y1="68" x2="120" y2="70" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="120" cy="70" r="4" fill="#FFB347"/>
+    <line x1="120" y1="70" x2="140" y2="60" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- ángulos 90° -->
+    <text x="35" y="68" font-size="7" fill="#A29BFE">90°</text>
+    <text x="115" y="68" font-size="7" fill="#A29BFE">90°</text>
+  </svg>`,
+
+  // CAT-COW - vaca
+  cowPose: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="88" x2="155" y2="88" stroke="#DFE6E9" stroke-width="2"/>
+    <circle cx="22" cy="42" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- espalda arqueada hacia abajo (vaca) -->
+    <path d="M 33,48 Q 80,62 110,48" stroke="#FF6B6B" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <line x1="45" y1="52" x2="45" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="72" y1="58" x2="72" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="110" cy="48" r="5" fill="#FFB347"/>
+    <line x1="98" y1="50" x2="98" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="118" y1="48" x2="118" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cola arriba -->
+    <path d="M 110,48 Q 130,35 138,28" stroke="#FF6B6B" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- flecha abajo -->
+    <text x="75" y="72" font-size="10" fill="#4ECDC4">↓</text>
+  </svg>`,
+
+  // CAT-COW - gato
+  catPose: `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="88" x2="155" y2="88" stroke="#DFE6E9" stroke-width="2"/>
+    <circle cx="22" cy="55" r="11" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <!-- espalda redondeada hacia arriba (gato) -->
+    <path d="M 33,52 Q 80,28 110,52" stroke="#FF6B6B" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <line x1="45" y1="48" x2="45" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="72" y1="36" x2="72" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="110" cy="52" r="5" fill="#FFB347"/>
+    <line x1="98" y1="48" x2="98" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="118" y1="52" x2="118" y2="88" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- cola abajo -->
+    <path d="M 110,52 Q 130,62 138,70" stroke="#FF6B6B" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- flecha arriba -->
+    <text x="75" y="30" font-size="10" fill="#4ECDC4">↑</text>
+  </svg>`,
+
+  // RESPIRACIÓN - sentada
+  breathSit: `<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <line x1="0" y1="155" x2="80" y2="155" stroke="#DFE6E9" stroke-width="2"/>
+    <circle cx="40" cy="18" r="12" fill="#FFB347" stroke="#2D3436" stroke-width="1.5"/>
+    <line x1="40" y1="30" x2="40" y2="90" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <!-- mano en pecho -->
+    <line x1="40" y1="42" x2="55" y2="55" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="55" y1="55" x2="55" y2="68" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="55" cy="55" r="4" fill="#FFB347"/>
+    <!-- mano en vientre -->
+    <line x1="40" y1="55" x2="22" y2="68" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="22" y1="68" x2="22" y2="80" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="22" cy="68" r="4" fill="#FFB347"/>
+    <!-- piernas cruzadas -->
+    <circle cx="40" cy="90" r="5" fill="#FFB347"/>
+    <line x1="40" y1="90" x2="15" y2="108" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="15" y1="108" x2="30" y2="130" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <line x1="40" y1="90" x2="65" y2="108" stroke="#FF6B6B" stroke-width="5" stroke-linecap="round"/>
+    <line x1="65" y1="108" x2="50" y2="130" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <!-- aura de calma -->
+    <circle cx="40" cy="54" r="28" stroke="#A29BFE" stroke-width="1" fill="none" opacity="0.3" stroke-dasharray="4,3"/>
+    <circle cx="40" cy="54" r="38" stroke="#FD79A8" stroke-width="1" fill="none" opacity="0.2" stroke-dasharray="4,3"/>
+    <!-- onda de respiración -->
+    <text x="58" y="45" font-size="10" fill="#4ECDC4" opacity="0.8">💨</text>
+  </svg>`,
+};
+
+// ============================================================
+// DATA
+// ============================================================
+const WEEKS = [
+  { title: "Semana 1 — Adaptación", subtitle: "Aprendiendo los movimientos con calma" },
+  { title: "Semana 2 — Consolidación", subtitle: "Mejorando la técnica, mismo volumen" },
+  { title: "Semana 3 — Progresión", subtitle: "Añadimos una serie por ejercicio" },
+  { title: "Semana 4 — Descanso activo", subtitle: "Volumen reducido para recuperar" },
+  { title: "Semana 5 — Fuerza base", subtitle: "Bajamos reps, subimos intensidad" },
+  { title: "Semana 6 — Resistencia", subtitle: "Más volumen, circuitos combinados" },
+  { title: "Semana 7 — Potencia", subtitle: "Velocidad controlada en la fase concéntrica" },
+  { title: "Semana 8 — Test y celebración", subtitle: "¡Ves lo lejos que has llegado!" },
+];
+
+const BASE_EXERCISES = {
+  fuerza1: [
+    {
+      id: "sentadilla", name: "Sentadilla con peso corporal",
+      emoji: "🦵", emojiColor: "linear-gradient(135deg,#fff0f0,#ffe0e0)",
+      svgStart: 'squatStand', svgEnd: 'squatDown',
+      startLabel: "De pie, pies a ancho de hombros", endLabel: "Baja controlada, rodillas hacia afuera",
+      desc: "El ejercicio reina para piernas y glúteos. Con hipermovilidad, es clave no dejar que las rodillas colapsen hacia dentro y no bajar más de lo que el control te permita.",
+      phases: ["Baja en 3s", "Pausa 1s", "Sube en 2s"],
+      tip: "<strong>Hipermovilidad:</strong> No bloquees las rodillas al subir. Para justo antes de extender del todo. Pies a ancho de hombros, puntas ligeramente abiertas.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "90s descanso",
+    },
+    {
+      id: "puente_gluteo", name: "Puente de glúteos",
+      emoji: "🍑", emojiColor: "linear-gradient(135deg,#fff5e0,#ffe0c0)",
+      svgStart: 'bridgeDown', svgEnd: 'bridgeUp',
+      startLabel: "Tumbada, rodillas dobladas, pies en el suelo", endLabel: "Cadera arriba, glúteos apretados",
+      desc: "Fundamental para activar glúteos y estabilizar la zona lumbar. Especialmente importante para compensar las horas sentada.",
+      phases: ["Sube en 2s", "Aprieta 2s", "Baja en 3s"],
+      tip: "<strong>Clave:</strong> Aprieta los glúteos en la cima como si quisieras juntar las nalgas. No arquees la espalda lumbar — la cadera sube, no la espalda.",
+      pillReps: "12-15 reps", pillSets: "2 series", pillRest: "60s descanso",
+    },
+    {
+      id: "flexion_pared", name: "Flexión de brazos en pared",
+      emoji: "💪", emojiColor: "linear-gradient(135deg,#f0f0ff,#e0e0ff)",
+      svgStart: 'wallPushStart', svgEnd: 'wallPushEnd',
+      startLabel: "Brazos extendidos, alejada de la pared", endLabel: "Codos doblados, acercada a la pared",
+      desc: "Versión accesible de la flexión, perfecta para comenzar. Trabaja pecho, hombros y tríceps sin sobrecargar las muñecas.",
+      phases: ["Acércate en 3s", "Pausa 1s", "Empuja en 2s"],
+      tip: "<strong>Hipermovilidad en codos:</strong> No estires los codos del todo al empujar. Deja una ligera flexión residual siempre.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "60s descanso",
+    },
+    {
+      id: "bird_dog", name: "Bird Dog (estabilización)",
+      emoji: "🐦", emojiColor: "linear-gradient(135deg,#e8fff8,#d0fff5)",
+      svgStart: 'birdDogStart', svgEnd: 'birdDogEnd',
+      startLabel: "A cuatro patas, espalda neutral", endLabel: "Brazo y pierna opuestos extendidos",
+      desc: "Ejercicio de estabilización de core imprescindible con hipermovilidad. Protege la columna y enseña al cuerpo a estabilizarse.",
+      phases: ["Extiende en 2s", "Mantén 3s", "Vuelve en 2s"],
+      tip: "<strong>Core:</strong> La espalda no debe moverse en ningún momento. Imagina que llevas un vaso de agua encima. Alterna lado.",
+      pillReps: "8 cada lado", pillSets: "2 series", pillRest: "60s descanso",
+    },
+  ],
+  fuerza2: [
+    {
+      id: "zancada_estatica", name: "Zancada estática (split squat)",
+      emoji: "🦵", emojiColor: "linear-gradient(135deg,#fff0f0,#ffe0e0)",
+      svgStart: 'lungeStand', svgEnd: 'lungeDown',
+      startLabel: "De pie, un pie adelantado, otro atrás", endLabel: "Rodilla trasera baja sin tocar el suelo",
+      desc: "Trabaja cada pierna por separado, mejorando el equilibrio y detectando asimetrías. Más seguro que la zancada caminando para empezar.",
+      phases: ["Baja en 3s", "Pausa 1s", "Sube en 2s"],
+      tip: "<strong>Equilibrio:</strong> Apoya la mano en una silla si necesitas. La rodilla trasera baja sin tocar el suelo. Rodilla delantera detrás del pie.",
+      pillReps: "8-10 cada pierna", pillSets: "2 series", pillRest: "90s descanso",
+    },
+    {
+      id: "superman", name: "Superman (extensión de espalda)",
+      emoji: "🦸", emojiColor: "linear-gradient(135deg,#f0f8ff,#e0f0ff)",
+      svgStart: 'supermanDown', svgEnd: 'supermanUp',
+      startLabel: "Boca abajo, brazos y piernas relajados", endLabel: "Brazos y piernas elevados controladamente",
+      desc: "Fortalece la cadena posterior (espalda baja, glúteos). Compensa el trabajo sedentario y mejora la postura.",
+      phases: ["Sube en 2s", "Mantén 2s", "Baja en 3s"],
+      tip: "<strong>Atención:</strong> No fuerces el cuello hacia arriba. La mirada va al suelo. No levantes en exceso — el movimiento es pequeño y controlado.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "60s descanso",
+    },
+    {
+      id: "remo_toalla", name: "Remo con toalla (en puerta)",
+      emoji: "🚪", emojiColor: "linear-gradient(135deg,#fff0ff,#ffe0ff)",
+      svgStart: 'rowStart', svgEnd: 'rowEnd',
+      startLabel: "Inclinada atrás, brazos extendidos hacia el pomo", endLabel: "Tirada hacia la puerta, codos doblados",
+      desc: "Sin equipamiento, usando el peso del cuerpo y una puerta. Trabaja toda la espalda y bíceps. Fundamental para la postura.",
+      phases: ["Tira en 2s", "Aprieta 1s", "Vuelve en 3s"],
+      tip: "<strong>Setup:</strong> Enrolla una toalla en el pomo de la puerta cerrada. Inclínate hacia atrás y tira de ti misma. Cuanto más inclinada, más difícil.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "60s descanso",
+    },
+    {
+      id: "plancha_rodillas", name: "Plancha sobre rodillas",
+      emoji: "⏱️", emojiColor: "linear-gradient(135deg,#f5ffe0,#eaffe0)",
+      svgStart: 'plankPos', svgEnd: 'plankPos',
+      startLabel: "Cuerpo recto de cabeza a rodillas", endLabel: "Mantén la posición respirando",
+      desc: "Core antiextensión — el ejercicio más eficiente para fortalecer el abdomen profundo sin riesgo lumbar.",
+      phases: ["Estabiliza", "Respira", "Mantén"],
+      tip: "<strong>Hipermovilidad:</strong> No bloquees los codos. Activa el abdomen como si fuera a darte un golpe. Contrae glúteos también.",
+      pillReps: "20-30 segundos", pillSets: "2 series", pillRest: "60s descanso", pillTime: "Isométrico",
+    },
+  ],
+  fuerza3: [
+    {
+      id: "sentadilla_sumo", name: "Sentadilla sumo",
+      emoji: "🥋", emojiColor: "linear-gradient(135deg,#fff0f0,#ffe0e0)",
+      svgStart: 'sumoStand', svgEnd: 'sumoDown',
+      startLabel: "Pies muy abiertos, puntas hacia afuera", endLabel: "Cadera baja, rodillas siguen las puntas",
+      desc: "Variante con pies más abiertos que trabaja más el interior del muslo y glúteo medio.",
+      phases: ["Baja en 3s", "Pausa 1s", "Sube en 2s"],
+      tip: "<strong>Pies:</strong> Más anchos que los hombros, puntas muy abiertas (45°). Las rodillas siguen la dirección de las puntas de los pies siempre.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "90s descanso",
+    },
+    {
+      id: "flexion_inclinada", name: "Flexión en silla o encimera",
+      emoji: "🪑", emojiColor: "linear-gradient(135deg,#f0f0ff,#e0e0ff)",
+      svgStart: 'wallPushStart', svgEnd: 'wallPushEnd',
+      startLabel: "Manos en la silla, cuerpo inclinado recto", endLabel: "Baja el pecho hacia la silla",
+      desc: "Un paso más difícil que la flexión en pared. El cuerpo más inclinado aumenta la carga. Pecho, hombros, tríceps.",
+      phases: ["Baja en 3s", "Pausa 1s", "Empuja en 2s"],
+      tip: "<strong>Cuerpo recto:</strong> De cabeza a talones como una tabla. No dejes que las caderas se hundan ni suban. Mismo aviso: no bloquees codos.",
+      pillReps: "8-10 reps", pillSets: "2 series", pillRest: "60s descanso",
+    },
+    {
+      id: "peso_muerto_rdc", name: "Bisagra de cadera (RDC)",
+      emoji: "🏋️", emojiColor: "linear-gradient(135deg,#fff5e0,#ffe0c0)",
+      svgStart: 'hingStand', svgEnd: 'hingDown',
+      startLabel: "De pie, espalda neutral, pies a ancho caderas", endLabel: "Cadera atrás, torso paralelo al suelo",
+      desc: "El movimiento más funcional que existe. Enseña al cuerpo a doblar por la cadera, no por la espalda. Cadena posterior completa.",
+      phases: ["Bisagra en 3s", "Pausa", "Sube en 2s"],
+      tip: "<strong>Imagen:</strong> Cierra una puerta con el trasero hacia atrás. La espalda NEUTRAL — ni arqueada ni redondeada.",
+      pillReps: "10-12 reps", pillSets: "2 series", pillRest: "90s descanso",
+    },
+    {
+      id: "dead_bug", name: "Dead Bug (escarabajo muerto)",
+      emoji: "🪲", emojiColor: "linear-gradient(135deg,#e8fff8,#d0fff5)",
+      svgStart: 'deadBugStart', svgEnd: 'deadBugEnd',
+      startLabel: "Tumbada, brazos arriba, piernas en tabla (90°)", endLabel: "Extiende brazo y pierna opuestos",
+      desc: "Ejercicio avanzado de core tumbada. Muy seguro para la espalda y muy eficaz para el abdomen profundo.",
+      phases: ["Extiende en 3s", "Pausa 1s", "Recoge en 2s"],
+      tip: "<strong>Clave:</strong> La espalda baja debe permanecer pegada al suelo. Si se despega, el movimiento es demasiado grande. Reduce el recorrido.",
+      pillReps: "6-8 cada lado", pillSets: "2 series", pillRest: "60s descanso",
+    },
+  ],
+  movilidad: [
+    {
+      id: "apertura_toracica", name: "Apertura torácica con rodillo",
+      emoji: "🧘", emojiColor: "linear-gradient(135deg,#fff0ff,#ffe0ff)",
+      svgStart: 'thoracicStart', svgEnd: 'thoracicEnd',
+      startLabel: "Espalda sobre el rodillo, rodillas dobladas", endLabel: "Brazos abren atrás, pecho se abre",
+      desc: "Contrarresta horas de postura sedentaria. Abre el pecho y moviliza la espalda media.",
+      phases: ["Inspira", "Abre suave", "Espira"],
+      tip: "<strong>Hipermovilidad:</strong> Los movimientos de movilidad deben ser ACTIVOS y controlados — no te dejes caer pasivamente.",
+      pillReps: "8-10 reps", pillSets: "2 series", pillRest: "30s descanso",
+    },
+    {
+      id: "hip_90_90", name: "Estiramiento 90/90 de cadera",
+      emoji: "🦋", emojiColor: "linear-gradient(135deg,#fff5e0,#ffe8e0)",
+      svgStart: 'hip9090', svgEnd: 'hip9090',
+      startLabel: "Sentada, piernas en ángulo de 90° cada una", endLabel: "Inclínate hacia la pierna delantera",
+      desc: "Movilidad de cadera en rotación interna y externa. Muy beneficioso para aliviar la tensión de estar sentada.",
+      phases: ["Siéntate", "Inclínate", "Respira"],
+      tip: "<strong>Hipermovilidad:</strong> No te inclines hasta donde puedes (que es lejos), sino hasta donde sientes el trabajo muscular activo.",
+      pillReps: "5 cada lado", pillSets: "1 serie", pillRest: "30s descanso", pillTime: "30s/posición",
+    },
+    {
+      id: "cat_cow", name: "Gato-vaca (movilidad lumbar)",
+      emoji: "🐱", emojiColor: "linear-gradient(135deg,#f0fff0,#e0ffe0)",
+      svgStart: 'cowPose', svgEnd: 'catPose',
+      startLabel: "Vaca: espalda baja (vientre al suelo)", endLabel: "Gato: espalda redonda (hacia el techo)",
+      desc: "Movimiento suave de columna para calentar y descomprimir discos.",
+      phases: ["Arch (vaca) 2s", "Pausa", "Round (gato) 2s"],
+      tip: "<strong>Respiración:</strong> Inspira al bajar el vientre (vaca), espira al redondear la espalda (gato). El movimiento empieza en la cola.",
+      pillReps: "10 ciclos", pillSets: "2 series", pillRest: "Sin descanso",
+    },
+    {
+      id: "respiracion", name: "Respiración diafragmática",
+      emoji: "🫁", emojiColor: "linear-gradient(135deg,#e0f8ff,#d0f0ff)",
+      svgStart: 'breathSit', svgEnd: 'breathSit',
+      startLabel: "Sentada cómoda, mano en pecho y vientre", endLabel: "Respira expandiendo el vientre, no el pecho",
+      desc: "Activa el sistema nervioso parasimpático, reduce el cortisol (muy elevado en perimenopausia) y mejora la función del core profundo.",
+      phases: ["Inspira 4s", "Mantén 2s", "Espira 6s"],
+      tip: "<strong>Perimenopausia:</strong> 5-10 minutos de respiración consciente al día tiene efectos reales sobre el estrés hormonal.",
+      pillReps: "10 ciclos", pillSets: "1 serie", pillRest: "Sin descanso", pillTime: "~5 minutos",
+    },
+  ],
+};
+
+const WEEK_DAYS = [
+  { day:"Lun", label:"Lunes", type:"fuerza1", title:"Fuerza — Piernas y Core", desc:"Sentadilla · Puente · Flexión pared · Bird Dog" },
+  { day:"Mar", label:"Martes", type:"descanso", title:"Descanso activo", desc:"Camina suave 20-30 minutos si puedes" },
+  { day:"Mié", label:"Miércoles", type:"fuerza2", title:"Fuerza — Espalda y Core", desc:"Zancada · Superman · Remo · Plancha" },
+  { day:"Jue", label:"Jueves", type:"descanso", title:"Descanso activo", desc:"Estiramientos suaves o caminar" },
+  { day:"Vie", label:"Viernes", type:"fuerza3", title:"Fuerza — Cuerpo completo", desc:"Sumo · Flex inclinada · Bisagra · Dead Bug" },
+  { day:"Sáb", label:"Sábado", type:"movilidad", title:"Movilidad y respiración", desc:"Torácica · 90/90 · Gato-vaca · Respiración" },
+  { day:"Dom", label:"Domingo", type:"descanso", title:"Descanso completo", desc:"Recuperación total. ¡Te lo mereces!" },
+];
+
+// STATE
+let currentWeek = 0, currentDay = 0;
+let completed = {};
+try { const s = localStorage.getItem('wk_done'); if(s) completed = JSON.parse(s); } catch(e){}
+function save(){ try{ localStorage.setItem('wk_done', JSON.stringify(completed)); }catch(e){} }
+function isCompleted(w,d,id){ return !!(completed[w]&&completed[w][d]&&completed[w][d][id]); }
+function setCompleted(w,d,id,v){ if(!completed[w])completed[w]={}; if(!completed[w][d])completed[w][d]={}; completed[w][d][id]=v; save(); }
+
+function getExercises(type){
+  if(type==='fuerza1') return BASE_EXERCISES.fuerza1;
+  if(type==='fuerza2') return BASE_EXERCISES.fuerza2;
+  if(type==='fuerza3') return BASE_EXERCISES.fuerza3;
+  if(type==='movilidad') return BASE_EXERCISES.movilidad;
+  return [];
+}
+function getWeekSets(wi){ if(wi<2)return '2 series'; if(wi===3)return '2 series (deload)'; if(wi<6)return '3 series'; return '4 series'; }
+
+function renderDayTabs(){
+  const c = document.getElementById('day-tabs'); c.innerHTML='';
+  WEEK_DAYS.forEach((d,i)=>{
+    const t=document.createElement('button');
+    t.className='day-tab'+(i===currentDay?' active':'');
+    const exs=getExercises(d.type);
+    if(exs.length>0&&exs.every(e=>isCompleted(currentWeek,i,e.id))) t.classList.add('done-day');
+    t.textContent=d.day;
+    t.onclick=()=>{ currentDay=i; render(); };
+    c.appendChild(t);
+  });
+}
+
+function renderProgress(){
+  let total=0,done=0;
+  WEEK_DAYS.forEach((d,i)=>{ getExercises(d.type).forEach(e=>{ total++; if(isCompleted(currentWeek,i,e.id))done++; }); });
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=done+' / '+total+' ejercicios';
+  document.getElementById('week-msg').style.display=(done===total&&total>0)?'block':'none';
+}
+
+function renderDayContent(){
+  const c=document.getElementById('day-content'); c.innerHTML='';
+  const d=WEEK_DAYS[currentDay];
+  // header
+  const h=document.createElement('div'); h.className='day-header';
+  let tagClass='',tagText='';
+  if(d.type.startsWith('fuerza')){tagClass='';tagText='🏋️ Sesión de fuerza';}
+  else if(d.type==='movilidad'){tagClass='mobility';tagText='🧘 Movilidad';}
+  else{tagClass='rest';tagText='😴 Descanso';}
+  h.innerHTML=`<h3>${d.title}</h3><p>${d.desc}</p><span class="day-tag ${tagClass}">${tagText}</span>`;
+  c.appendChild(h);
+
+  const exs=getExercises(d.type);
+  if(exs.length===0){
+    const r=document.createElement('div'); r.className='rest-day-card';
+    let icon='😴',msg='Hoy toca descansar. El descanso <strong>es parte del entrenamiento</strong> — es cuando el músculo crece y se repara. Si quieres, sal a caminar suave 20-30 minutos.';
+    if(d.day==='Dom'){icon='🌿';msg='Descanso completo. Nada de ejercicio hoy. Deja que tu cuerpo se recupere al 100%.';}
+    r.innerHTML=`<span class="big-emoji">${icon}</span><h3>${d.title}</h3><p>${msg}</p>`;
+    c.appendChild(r); return;
+  }
+
+  if(d.type.startsWith('fuerza')){
+    const n=document.createElement('div'); n.className='notes-card';
+    n.innerHTML=`<h4>📋 Antes de empezar</h4><ul>
+      <li>Calienta 5 min: caminata en el sitio + rotaciones de hombros y caderas</li>
+      <li>Respira: espira en el esfuerzo, inspira al volver</li>
+      <li>Si notas dolor (no molestia muscular) para y descansa</li>
+      <li>Con talasemia: si te mareas o te falta mucho el aire, para y siéntate</li>
+    </ul>`; c.appendChild(n);
+  }
+
+  exs.forEach(ex=>{
+    const done=isCompleted(currentWeek,currentDay,ex.id);
+    const card=document.createElement('div');
+    card.className='exercise-card'+(done?' completed':'');
+    card.id='card-'+ex.id;
+
+    const sets=getWeekSets(currentWeek);
+    const phases=ex.phases.map((p,i)=>`<div class="phase phase-${i+1}"><span class="phase-num">${['①','②','③'][i]}</span>${p}</div>`).join('');
+
+    // SVG visual
+    const svgStart = SVG[ex.svgStart] || '';
+    const svgEnd = SVG[ex.svgEnd] || '';
+    const isSame = ex.svgStart === ex.svgEnd;
+
+    const visualHTML = `
+      <div class="exercise-visual-container">
+        <div class="visual-title">¿Cómo se hace?</div>
+        <div class="poses-row">
+          <div class="pose-block">
+            ${svgStart}
+            <div class="pose-label start">INICIO</div>
+            <div style="font-size:0.68rem;color:var(--mid);margin-top:0.3rem;padding:0 0.3rem">${ex.startLabel}</div>
+          </div>
+          ${isSame ? '' : `<div class="arrow-middle">→</div>
+          <div class="pose-block">
+            ${svgEnd}
+            <div class="pose-label end">FINAL</div>
+            <div style="font-size:0.68rem;color:var(--mid);margin-top:0.3rem;padding:0 0.3rem">${ex.endLabel}</div>
+          </div>`}
+        </div>
+      </div>`;
+
+    card.innerHTML=`
+      <div class="card-top" onclick="toggleCard('${ex.id}')">
+        <div class="exercise-emoji" style="background:${ex.emojiColor}">${ex.emoji}</div>
+        <div class="card-info">
+          <h4>${ex.name}</h4>
+          <div class="card-meta">
+            <span class="meta-pill pill-reps">${ex.pillReps}</span>
+            <span class="meta-pill pill-sets">${sets}</span>
+            <span class="meta-pill pill-rest">${ex.pillRest}</span>
+            ${ex.pillTime?`<span class="meta-pill pill-time">${ex.pillTime}</span>`:''}
+          </div>
+        </div>
+        <button class="check-btn ${done?'checked':''}" onclick="event.stopPropagation();toggleDone('${ex.id}')" id="btn-${ex.id}">${done?'✓':''}</button>
+      </div>
+      <div class="card-detail" id="detail-${ex.id}">
+        <p class="detail-text">${ex.desc}</p>
+        ${visualHTML}
+        <div class="phases">${phases}</div>
+        <div class="tip-box">💡 ${ex.tip}</div>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function toggleCard(id){ document.getElementById('detail-'+id).classList.toggle('open'); }
+function toggleDone(id){
+  const cur=isCompleted(currentWeek,currentDay,id);
+  setCompleted(currentWeek,currentDay,id,!cur);
+  render();
+  if(!cur){ const b=document.getElementById('btn-'+id); if(b)b.classList.add('pop'); }
+}
+function resetDay(){ if(completed[currentWeek]&&completed[currentWeek][currentDay]){ completed[currentWeek][currentDay]={}; save(); render(); } }
+function completeDay(){ getExercises(WEEK_DAYS[currentDay].type).forEach(e=>setCompleted(currentWeek,currentDay,e.id,true)); render(); }
+function changeWeek(dir){
+  currentWeek=Math.max(0,Math.min(7,currentWeek+dir));
+  document.getElementById('week-title').textContent=WEEKS[currentWeek].title;
+  document.getElementById('prev-week').disabled=currentWeek===0;
+  document.getElementById('next-week').disabled=currentWeek===7;
+  render();
+}
+function render(){
+  document.getElementById('week-title').textContent=WEEKS[currentWeek].title;
+  renderDayTabs(); renderDayContent(); renderProgress();
+}
+
+const today=new Date().getDay();
+const dayMap=[6,0,1,2,3,4,5];
+currentDay=dayMap[today]!==undefined?dayMap[today]:0;
+render();
+</script>
+</body>
+</html>
