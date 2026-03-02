@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuerza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --dark: #1A1A1A;
+    --mid: #888;
+    --light: #E8E8E8;
+    --bg: #FAFAFA;
+    --white: #FFFFFF;
+    --accent: #0A0A0A;
+    --done: #2ECC71;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--black); min-height:100vh; }
+
+  /* HEADER */
+  .header {
+    background: var(--white);
+    padding: 3rem 1.5rem 2rem;
+    border-bottom: 1px solid var(--light);
+  }
+  .header-top { display:flex; justify-content:space-between; align-items:flex-start; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .header-badge {
+    background: var(--black);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+  .header-sub {
+    font-size: 0.82rem;
+    color: var(--mid);
+    margin-top: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* WEEK NAV */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.5rem 0;
+  }
+  .week-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--black);
+    letter-spacing: -0.01em;
+  }
+  .week-btns { display:flex; gap:0.5rem; }
+  .week-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--light);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--mid);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .week-btn:hover { border-color: var(--black); color: var(--black); }
+  .week-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* PROGRESS */
+  .progress-section {
+    padding: 1rem 1.5rem 0;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .progress-label { font-size: 0.72rem; color: var(--mid); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .progress-count { font-size: 0.72rem; font-weight: 600; color: var(--black); }
+  .progress-bar { background: var(--light); border-radius: 2px; height: 2px; overflow: hidden; }
+  .progress-fill { background: var(--black); height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+
+  /* SECTION TABS */
+  .section-tabs {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.2rem 1.5rem 0;
+    border-bottom: 1px solid var(--light);
+  }
+  .section-tab {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--mid);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .section-tab.active { color: var(--black); border-bottom-color: var(--black); }
+
+  /* DAY TABS */
+  .day-tabs {
+    display: flex;
+    gap: 0;
+    padding: 1rem 1.5rem 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .day-tabs::-webkit-scrollbar { display:none; }
+  .day-tab {
+    flex-shrink: 0;
+    width: 42px; height: 56px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0.2rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-radius: 10px;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .day-tab-name { font-size: 0.65rem; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 0.05em; }
+  .day-tab-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--light); transition: background 0.15s; }
+  .day-tab.active .day-tab-name { color: var(--black); }
+  .day-tab.active .day-tab-dot { background: var(--black); }
+  .day-tab.done-day .day-tab-dot { background: var(--done); }
+  .day-tab.done-day.active .day-tab-dot { background: var(--done); }
+
+  /* DAY CONTENT */
+  .day-content { padding: 1.5rem; }
+
+  .day-header {
+    margin-bottom: 1.5rem;
+  }
+  .day-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--black);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+  .day-header p { font-size: 0.8rem; color: var(--mid); }
+  .day-type-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: 0.5rem;
+    border: 1px solid var(--light);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  /* NOTES */
+  .notes-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--light);
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .notes-card h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mid); margin-bottom: 0.6rem; }
+  .notes-card ul { padding-left: 1rem; }
+  .notes-card li { font-size: 0.78rem; color: var(--dark); margin-bottom: 0.3rem; line-height: 1.5; }
+
+  /* EXERCISE CARD */
+  .exercise-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--light);
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .exercise-card.completed { border-color: var(--done); }
+  .card-top {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    gap: 1rem;
+    cursor: pointer;
+  }
+  .exercise-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--mid);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .exercise-card.completed .exercise-num {
+    background: var(--done);
+    border-color: var(--done);
+    color: white;
+  }
+  .card-info { flex: 1; }
+  .card-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--black); margin-bottom: 0.3rem; }
+  .card-meta { display: flex; gap: 1rem; }
+  .meta-item { font-size: 0.72rem; color: var(--mid); font-weight: 500; }
+  .meta-item span { color: var(--black); font-weight: 600; }
+  .check-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--light);
+    background: var(--white);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    color: transparent;
+  }
+  .check-btn.checked { background: var(--done); border-color: var(--done); color: white; }
+
+  /* CARD DETAIL */
+  .card-detail { display: none; border-top: 1px solid var(--light); }
+  .card-detail.open { display: block; }
+  .detail-inner { padding: 1rem 1.2rem; }
+  .detail-text { font-size: 0.8rem; color: var(--mid); line-height: 1.7; margin-bottom: 1rem; }
+
+  /* SVG VISUAL */
+  .visual-container {
+    background: #F5F5F5;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .visual-label-row {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-align: center;
+    margin-bottom: 0.8rem;
+  }
+  .poses-row { display:flex; align-items:center; justify-content:center; gap:0.5rem; }
+  .pose-block { flex:1; text-align:center; }
+  .pose-block svg { width:100%; max-width:100px; height:auto; }
+  .pose-tag {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: 0.4rem;
+    display: block;
+  }
+  .pose-desc { font-size: 0.65rem; color: var(--mid); margin-top: 0.2rem; line-height: 1.4; }
+  .arrow-sep { color: var(--light); font-size: 1rem; flex-shrink: 0; margin-top: -16px; }
+
+  /* PHASES */
+  .phases { display:flex; gap:0.6rem; margin-bottom:1rem; }
+  .phase {
+    flex: 1;
+    background: #F5F5F5;
+    border-radius: 8px;
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+  }
+  .phase-n { font-size: 0.65rem; font-weight: 700; color: var(--mid); display: block; margin-bottom: 0.2rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .phase-t { font-size: 0.72rem; font-weight: 600; color: var(--black); }
+
+  /* TIP */
+  .tip-box {
+    border-left: 2px solid var(--black);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.78rem;
+    color: var(--dark);
+    line-height: 1.5;
+    background: #F9F9F9;
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* REST DAY */
+  .rest-card {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+  .rest-card .rest-icon { font-size: 2.5rem; display:block; margin-bottom:1rem; }
+  .rest-card h3 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.5rem; }
+  .rest-card p { font-size:0.82rem; color:var(--mid); line-height:1.6; }
+
+  /* GAMIFICATION */
+  .gami-section { padding: 1.5rem; }
+
+  .level-block {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .level-icon-box {
+    width: 48px; height: 48px;
+    background: var(--black);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .level-info { flex: 1; }
+  .level-name { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--black); }
+  .level-sub { font-size:0.72rem; color:var(--mid); margin:0.2rem 0 0.5rem; }
+  .xp-bar { background:var(--light); border-radius:2px; height:2px; overflow:hidden; }
+  .xp-fill { background:var(--black); height:100%; border-radius:2px; transition:width 1s ease; }
+  .xp-label { font-size:0.65rem; color:var(--mid); margin-top:0.3rem; text-align:right; letter-spacing:0.04em; }
+
+  .streak-block {
+    background: var(--black);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+  }
+  .streak-num { font-family:'Playfair Display',serif; font-size:2.5rem; font-weight:700; line-height:1; color:white; }
+  .streak-label { font-size:0.72rem; color:rgba(255,255,255,0.6); margin-top:0.1rem; }
+  .streak-record { font-size:0.65rem; color:rgba(255,255,255,0.4); margin-top:0.2rem; letter-spacing:0.03em; }
+  .streak-emoji-box { margin-left:auto; font-size:1.8rem; }
+
+  .badges-block {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 12px;
+    padding: 1.2rem;
+  }
+  .badges-heading { font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--mid); margin-bottom:1rem; }
+  .badges-grid { display:flex; flex-wrap:wrap; gap:0.8rem; }
+  .badge-item { display:flex; flex-direction:column; align-items:center; gap:0.3rem; width:56px; }
+  .badge-icon {
+    width:44px; height:44px;
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem;
+    border: 1px solid var(--light);
+  }
+  .badge-icon.earned { background:var(--black); border-color:var(--black); }
+  .badge-icon.locked { background:#F5F5F5; filter:grayscale(1); opacity:0.4; }
+  .badge-label { font-size:0.58rem; font-weight:600; color:var(--mid); text-align:center; line-height:1.2; letter-spacing:0.02em; }
+
+  /* CELEBRATION */
+  .celebration-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.7); z-index:1000;
+    align-items:center; justify-content:center;
+  }
+  .celebration-overlay.show { display:flex; }
+  .celebration-box {
+    background:var(--white);
+    border-radius:20px;
+    padding:2rem 1.5rem;
+    text-align:center;
+    margin:1rem;
+    max-width:320px; width:100%;
+    animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .cel-emoji { font-size:3rem; display:block; margin-bottom:0.8rem; }
+  .cel-title { font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:0.5rem; color:var(--black); }
+  .cel-msg { font-size:0.82rem; color:var(--mid); line-height:1.6; margin-bottom:1rem; font-style:italic; }
+  .cel-xp {
+    display:inline-block;
+    background:var(--black); color:white;
+    font-size:0.8rem; font-weight:700;
+    padding:0.3rem 0.9rem; border-radius:20px;
+    letter-spacing:0.05em; margin-bottom:1rem;
+  }
+  .cel-badge { background:#F5F5F5; border-radius:10px; padding:0.8rem; margin-bottom:1rem; }
+  .cel-badge-icon { font-size:2rem; display:block; margin-bottom:0.3rem; }
+  .cel-badge-name { font-size:0.85rem; font-weight:700; color:var(--black); }
+  .cel-badge-desc { font-size:0.72rem; color:var(--mid); margin-top:0.2rem; }
+  .cel-close {
+    width:100%; padding:0.9rem;
+    background:var(--black); color:white;
+    border:none; border-radius:10px;
+    font-size:0.88rem; font-weight:600;
+    cursor:pointer; letter-spacing:0.02em;
+    transition: opacity 0.15s;
+  }
+  .cel-close:hover { opacity:0.85; }
+
+  .confetti-piece { position:fixed; width:8px; height:8px; border-radius:2px; animation:confettiFall 1.5s ease-in forwards; z-index:1001; pointer-events:none; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--white);
+    border-top:1px solid var(--light);
+    padding:0.8rem 1.5rem;
+    display:flex; gap:0.8rem;
+  }
+  .reset-btn {
+    flex:1; padding:0.75rem;
+    border-radius:10px;
+    border:1px solid var(--light);
+    background:var(--white);
+    cursor:pointer; font-size:0.8rem; font-weight:600; color:var(--mid);
+    transition:all 0.15s;
+  }
+  .reset-btn:hover { border-color:var(--black); color:var(--black); }
+  .done-btn {
+    flex:2; padding:0.75rem;
+    border-radius:10px; border:none;
+    background:var(--black); color:white;
+    cursor:pointer; font-size:0.85rem; font-weight:600;
+    transition:opacity 0.15s; letter-spacing:0.02em;
+  }
+  .done-btn:hover { opacity:0.85; }
+  .spacer { height:80px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Mi Plan<br>de Fuerza</h1>
+      <p class="header-sub">Plan personalizado · Nivel principiante</p>
+    </div>
+    <div class="header-badge">8 semanas</div>
+  </div>
+</div>
+
+<div class="section-tabs">
+  <button class="section-tab active" onclick="showSection('entrena')" id="tab-entrena">Entrena</button>
+  <button class="section-tab" onclick="showSection('logros')" id="tab-logros">Logros</button>
+</div>
+
+<!-- SECTION ENTRENA -->
+<div id="section-entrena">
+  <div class="week-nav">
+    <div class="week-title" id="week-title">Semana 1 — Adaptación</div>
+    <div class="week-btns">
+      <button class="week-btn" id="prev-week" onclick="changeWeek(-1)" disabled>‹</button>
+      <button class="week-btn" id="next-week" onclick="changeWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-row">
+      <span class="progress-label">Progreso semanal</span>
+      <span class="progress-count" id="progress-text">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="day-tabs" id="day-tabs"></div>
+  <div class="day-content" id="day-content"></div>
+</div>
+
+<!-- SECTION LOGROS -->
+<div id="section-logros" style="display:none;">
+  <div class="gami-section">
+    <div class="level-block">
+      <div class="level-icon-box" id="level-icon">🌱</div>
+      <div class="level-info">
+        <div class="level-name" id="level-name">Principiante</div>
+        <div class="level-sub" id="level-sub">Sigue así, cada rep cuenta</div>
+        <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="xp-label" id="xp-label">0 / 100 XP</div>
+      </div>
+    </div>
+
+    <div class="streak-block">
+      <div>
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="streak-label">días de racha</div>
+        <div class="streak-record" id="streak-record">Récord: 0 días</div>
+      </div>
+      <div class="streak-emoji-box" id="streak-emoji">😴</div>
+    </div>
+
+    <div class="badges-block">
+      <div class="badges-heading">Insignias</div>
+      <div class="badges-grid" id="badges-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- CELEBRATION -->
+<div class="celebration-overlay" id="celebration">
+  <div class="celebration-box">
+    <span class="cel-emoji" id="cel-emoji">✦</span>
+    <div class="cel-title" id="cel-title">Sesión completada</div>
+    <div class="cel-msg" id="cel-msg">Eres una máquina.</div>
+    <div class="cel-xp" id="cel-xp">+20 XP</div>
+    <div id="cel-badge-area"></div>
+    <button class="cel-close" onclick="closeCelebration()">A por la siguiente →</button>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <button class="reset-btn" onclick="resetDay()">Reiniciar día</button>
+  <button class="done-btn" onclick="completeDay()">Marcar todo ✓</button>
+</div>
+
+<script>
+// ============================================================
+// SVG FIGURES (same as v2/v3, monochrome palette)
+// ============================================================
+const SVG = {
+  squatStand:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="40" y1="30" x2="40" y2="80" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="40" x2="18" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="18" y1="65" x2="18" y2="85" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="40" x2="62" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="65" x2="62" y2="85" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="80" r="5" fill="#888"/><line x1="40" y1="80" x2="30" y2="120" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="120" x2="28" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="80" x2="50" y2="120" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="50" y1="120" x2="52" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="120" r="4" fill="#888"/><circle cx="50" cy="120" r="4" fill="#888"/><line x1="28" y1="155" x2="18" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="52" y1="155" x2="62" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  squatDown:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="40" y1="40" x2="38" y2="85" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="39" y1="50" x2="15" y2="60" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="15" y1="60" x2="10" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="39" y1="50" x2="63" y2="60" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="63" y1="60" x2="68" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="38" cy="85" r="5" fill="#888"/><line x1="38" y1="85" x2="20" y2="110" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="20" y1="110" x2="22" y2="148" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="38" y1="85" x2="56" y2="110" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="56" y1="110" x2="58" y2="148" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="20" cy="110" r="4" fill="#888"/><circle cx="56" cy="110" r="4" fill="#888"/><line x1="22" y1="148" x2="10" y2="152" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="58" y1="148" x2="70" y2="152" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  bridgeDown:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="70" x2="155" y2="70" stroke="#E8E8E8" stroke-width="2"/><circle cx="15" cy="52" r="10" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="25" y1="55" x2="80" y2="60" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="58" x2="38" y2="70" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="60" x2="63" y2="70" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="62" r="5" fill="#888"/><line x1="80" y1="62" x2="98" y2="45" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="98" cy="45" r="4" fill="#888"/><line x1="98" y1="45" x2="118" y2="68" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="118" y1="68" x2="135" y2="70" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  bridgeUp:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="70" x2="155" y2="70" stroke="#E8E8E8" stroke-width="2"/><circle cx="15" cy="55" r="10" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="25" y1="58" x2="80" y2="35" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="55" x2="38" y2="70" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="47" x2="60" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="35" r="5" fill="#888"/><line x1="80" y1="35" x2="100" y2="50" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="50" r="4" fill="#888"/><line x1="100" y1="50" x2="115" y2="70" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="115" y1="70" x2="130" y2="70" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  wallPushStart:`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"><rect x="95" y="0" width="8" height="160" fill="#E8E8E8" rx="2"/><circle cx="55" cy="22" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="55" y1="34" x2="60" y2="80" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="57" y1="45" x2="95" y2="50" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="57" y1="45" x2="95" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="95" cy="50" r="4" fill="#888"/><circle cx="95" cy="62" r="4" fill="#888"/><circle cx="60" cy="80" r="5" fill="#888"/><line x1="60" y1="80" x2="52" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="52" y1="125" x2="50" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="60" y1="80" x2="68" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="68" y1="125" x2="70" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="52" cy="125" r="4" fill="#888"/><circle cx="68" cy="125" r="4" fill="#888"/><line x1="50" y1="155" x2="35" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="70" y1="155" x2="55" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  wallPushEnd:`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"><rect x="95" y="0" width="8" height="160" fill="#E8E8E8" rx="2"/><circle cx="78" cy="22" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="78" y1="34" x2="65" y2="80" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="75" y1="45" x2="95" y2="38" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="75" y1="45" x2="95" y2="55" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="95" cy="38" r="4" fill="#888"/><circle cx="95" cy="55" r="4" fill="#888"/><circle cx="65" cy="80" r="5" fill="#888"/><line x1="65" y1="80" x2="55" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="55" y1="125" x2="45" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="65" y1="80" x2="75" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="75" y1="125" x2="65" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="55" cy="125" r="4" fill="#888"/><circle cx="75" cy="125" r="4" fill="#888"/><line x1="45" y1="155" x2="30" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="65" y1="155" x2="50" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  birdDogStart:`<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="88" x2="155" y2="88" stroke="#E8E8E8" stroke-width="2"/><circle cx="22" cy="42" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="33" y1="45" x2="110" y2="45" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="45" y1="45" x2="45" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="75" y1="45" x2="75" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="110" cy="45" r="5" fill="#888"/><line x1="100" y1="45" x2="100" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="120" y1="45" x2="120" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  birdDogEnd:`<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="88" x2="155" y2="88" stroke="#E8E8E8" stroke-width="2"/><circle cx="22" cy="42" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="33" y1="45" x2="100" y2="45" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="45" y1="45" x2="8" y2="38" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="8" cy="38" r="3" fill="#888"/><line x1="72" y1="45" x2="72" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="45" r="5" fill="#888"/><line x1="88" y1="45" x2="88" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="45" x2="148" y2="38" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="148" cy="38" r="3" fill="#888"/></svg>`,
+  lungeStand:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="40" y1="30" x2="40" y2="78" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="42" x2="18" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="18" y1="62" x2="16" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="42" x2="62" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="62" x2="64" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="78" r="5" fill="#888"/><line x1="40" y1="78" x2="30" y2="115" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="115" x2="28" y2="152" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="78" x2="52" y2="115" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="52" y1="115" x2="60" y2="152" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="115" r="4" fill="#888"/><circle cx="52" cy="115" r="4" fill="#888"/><line x1="28" y1="152" x2="14" y2="156" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="60" y1="152" x2="72" y2="156" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  lungeDown:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="158" x2="80" y2="158" stroke="#E8E8E8" stroke-width="2"/><circle cx="35" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="35" y1="30" x2="33" y2="78" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="34" y1="44" x2="14" y2="60" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="14" y1="60" x2="12" y2="76" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="34" y1="44" x2="55" y2="60" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="60" x2="57" y2="76" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="33" cy="78" r="5" fill="#888"/><line x1="33" y1="78" x2="20" y2="112" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="20" y1="112" x2="18" y2="152" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="33" y1="78" x2="55" y2="112" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="55" y1="112" x2="62" y2="152" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="20" cy="112" r="4" fill="#888"/><circle cx="55" cy="112" r="4" fill="#888"/><circle cx="62" cy="152" r="5" fill="#888" stroke="#0A0A0A" stroke-width="1.5"/><line x1="18" y1="152" x2="5" y2="156" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  supermanDown:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="58" x2="155" y2="58" stroke="#E8E8E8" stroke-width="2"/><circle cx="20" cy="45" r="10" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="30" y1="48" x2="110" y2="48" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="45" y1="48" x2="42" y2="58" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="70" y1="48" x2="67" y2="58" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="110" cy="48" r="5" fill="#888"/><line x1="110" y1="48" x2="135" y2="52" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="110" y1="48" x2="135" y2="44" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/></svg>`,
+  supermanUp:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="58" x2="155" y2="58" stroke="#E8E8E8" stroke-width="2"/><circle cx="20" cy="35" r="10" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><path d="M 30,42 Q 70,30 110,42" stroke="#0A0A0A" stroke-width="6" fill="none" stroke-linecap="round"/><line x1="38" y1="38" x2="8" y2="28" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="33" x2="30" y2="22" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="110" cy="42" r="5" fill="#888"/><line x1="110" y1="42" x2="138" y2="32" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="110" y1="42" x2="138" y2="42" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/></svg>`,
+  rowStart:`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="10" height="160" fill="#E8E8E8" rx="2"/><circle cx="10" cy="80" r="5" fill="#888" stroke="#0A0A0A" stroke-width="1"/><line x1="10" y1="70" x2="40" y2="65" stroke="#888" stroke-width="3" stroke-dasharray="4,2"/><line x1="10" y1="90" x2="40" y2="75" stroke="#888" stroke-width="3" stroke-dasharray="4,2"/><circle cx="80" cy="30" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="80" y1="42" x2="55" y2="85" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="70" y1="58" x2="40" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="70" y1="58" x2="40" y2="75" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="65" r="4" fill="#888"/><circle cx="40" cy="75" r="4" fill="#888"/><circle cx="55" cy="85" r="5" fill="#888"/><line x1="55" y1="85" x2="45" y2="128" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="45" y1="128" x2="42" y2="158" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="55" y1="85" x2="65" y2="128" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="65" y1="128" x2="68" y2="158" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="42" y1="158" x2="28" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="68" y1="158" x2="80" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  rowEnd:`<svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="10" height="160" fill="#E8E8E8" rx="2"/><circle cx="10" cy="80" r="5" fill="#888" stroke="#0A0A0A" stroke-width="1"/><line x1="10" y1="70" x2="30" y2="68" stroke="#888" stroke-width="3" stroke-dasharray="4,2"/><line x1="10" y1="90" x2="30" y2="78" stroke="#888" stroke-width="3" stroke-dasharray="4,2"/><circle cx="65" cy="28" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="65" y1="40" x2="48" y2="82" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="58" y1="55" x2="30" y2="68" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="68" x2="18" y2="68" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="55" x2="30" y2="78" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="78" x2="18" y2="78" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="18" cy="68" r="4" fill="#888"/><circle cx="18" cy="78" r="4" fill="#888"/><circle cx="48" cy="82" r="5" fill="#888"/><line x1="48" y1="82" x2="38" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="38" y1="125" x2="35" y2="158" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="48" y1="82" x2="58" y2="125" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="58" y1="125" x2="62" y2="158" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="35" y1="158" x2="20" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="62" y1="158" x2="74" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  plankPos:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="72" x2="155" y2="72" stroke="#E8E8E8" stroke-width="2"/><circle cx="18" cy="38" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="29" y1="42" x2="118" y2="42" stroke="#0A0A0A" stroke-width="7" stroke-linecap="round"/><line x1="45" y1="42" x2="45" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="38" y1="72" x2="52" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="72" y1="42" x2="72" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="72" x2="79" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="118" cy="42" r="5" fill="#888"/><line x1="118" y1="42" x2="128" y2="65" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="128" cy="65" r="5" fill="#888" stroke="#0A0A0A" stroke-width="1.5"/><line x1="118" y1="42" x2="108" y2="65" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="108" cy="65" r="5" fill="#888" stroke="#0A0A0A" stroke-width="1.5"/></svg>`,
+  sumoStand:`<svg viewBox="0 0 90 160" xmlns="http://www.w3.org/2000/svg"><circle cx="45" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="45" y1="30" x2="45" y2="80" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="45" y1="42" x2="20" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="62" x2="18" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="45" y1="42" x2="70" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="70" y1="62" x2="72" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="45" cy="80" r="5" fill="#888"/><line x1="45" y1="80" x2="22" y2="120" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="22" y1="120" x2="18" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="45" y1="80" x2="68" y2="120" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="68" y1="120" x2="72" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="22" cy="120" r="4" fill="#888"/><circle cx="68" cy="120" r="4" fill="#888"/><line x1="18" y1="155" x2="4" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="72" y1="155" x2="86" y2="160" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  sumoDown:`<svg viewBox="0 0 90 160" xmlns="http://www.w3.org/2000/svg"><circle cx="45" cy="30" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="45" y1="42" x2="43" y2="88" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="44" y1="55" x2="18" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="44" y1="55" x2="70" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="18" cy="65" r="4" fill="#888"/><circle cx="70" cy="65" r="4" fill="#888"/><circle cx="43" cy="88" r="5" fill="#888"/><line x1="43" y1="88" x2="15" y2="110" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="15" y1="110" x2="10" y2="148" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="43" y1="88" x2="71" y2="110" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="71" y1="110" x2="80" y2="148" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="15" cy="110" r="4" fill="#888"/><circle cx="71" cy="110" r="4" fill="#888"/><line x1="10" y1="148" x2="0" y2="154" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="80" y1="148" x2="90" y2="154" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  hingStand:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="40" y1="30" x2="40" y2="80" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="42" x2="18" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="18" y1="62" x2="16" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="42" x2="62" y2="62" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="62" x2="64" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="80" r="5" fill="#888"/><line x1="40" y1="80" x2="30" y2="122" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="122" x2="28" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="80" x2="50" y2="122" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="50" y1="122" x2="52" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="122" r="4" fill="#888"/><circle cx="50" cy="122" r="4" fill="#888"/><line x1="28" y1="155" x2="14" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="52" y1="155" x2="66" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  hingDown:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="158" x2="80" y2="158" stroke="#E8E8E8" stroke-width="2"/><circle cx="16" cy="58" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="28" y1="60" x2="62" y2="62" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="35" y1="62" x2="32" y2="90" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="62" x2="47" y2="90" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="62" cy="62" r="5" fill="#888"/><line x1="62" y1="62" x2="52" y2="115" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="52" y1="115" x2="50" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="62" y1="62" x2="68" y2="115" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="68" y1="115" x2="70" y2="155" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="52" cy="115" r="4" fill="#888"/><circle cx="68" cy="115" r="4" fill="#888"/><line x1="50" y1="155" x2="36" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/><line x1="70" y1="155" x2="80" y2="158" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  deadBugStart:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="58" x2="155" y2="58" stroke="#E8E8E8" stroke-width="2"/><circle cx="80" cy="45" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="80" y1="56" x2="80" y2="20" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="80" y1="35" x2="55" y2="18" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="35" x2="105" y2="18" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="18" r="4" fill="#888"/><circle cx="105" cy="18" r="4" fill="#888"/><circle cx="80" cy="56" r="5" fill="#888"/><line x1="80" y1="56" x2="58" y2="38" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="58" cy="38" r="4" fill="#888"/><line x1="58" y1="38" x2="52" y2="58" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="56" x2="102" y2="38" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="102" cy="38" r="4" fill="#888"/><line x1="102" y1="38" x2="108" y2="58" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  deadBugEnd:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="58" x2="155" y2="58" stroke="#E8E8E8" stroke-width="2"/><circle cx="80" cy="45" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="80" y1="56" x2="80" y2="20" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="80" y1="32" x2="115" y2="18" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="115" y1="18" x2="148" y2="12" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="148" cy="12" r="4" fill="#888"/><line x1="80" y1="32" x2="55" y2="18" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="18" r="4" fill="#888"/><circle cx="80" cy="56" r="5" fill="#888"/><line x1="80" y1="56" x2="55" y2="42" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="55" y1="42" x2="18" y2="36" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="18" cy="36" r="4" fill="#888"/><line x1="80" y1="56" x2="102" y2="38" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="102" cy="38" r="4" fill="#888"/><line x1="102" y1="38" x2="108" y2="58" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  thoracicStart:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="72" x2="155" y2="72" stroke="#E8E8E8" stroke-width="2"/><ellipse cx="80" cy="65" rx="35" ry="6" fill="#888" opacity="0.3"/><circle cx="80" cy="22" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="80" y1="33" x2="80" y2="62" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/><line x1="80" y1="42" x2="62" y2="48" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="48" x2="68" y2="55" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="42" x2="98" y2="48" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="98" y1="48" x2="92" y2="55" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="62" r="5" fill="#888"/><line x1="80" y1="62" x2="60" y2="58" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="60" y1="58" x2="52" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="62" x2="100" y2="58" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="100" y1="58" x2="108" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  thoracicEnd:`<svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="72" x2="155" y2="72" stroke="#E8E8E8" stroke-width="2"/><ellipse cx="80" cy="65" rx="35" ry="6" fill="#888" opacity="0.3"/><circle cx="80" cy="30" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><path d="M 80,41 Q 80,55 80,62" stroke="#0A0A0A" stroke-width="6" fill="none" stroke-linecap="round"/><line x1="80" y1="48" x2="48" y2="38" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="38" x2="30" y2="30" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="48" x2="112" y2="38" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="112" y1="38" x2="130" y2="30" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="62" r="5" fill="#888"/><line x1="80" y1="62" x2="60" y2="58" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="60" y1="58" x2="52" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="62" x2="100" y2="58" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="100" y1="58" x2="108" y2="72" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  hip9090:`<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="88" x2="155" y2="88" stroke="#E8E8E8" stroke-width="2"/><circle cx="80" cy="22" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="80" y1="34" x2="80" y2="68" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="80" y1="50" x2="55" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="65" x2="50" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="50" x2="105" y2="65" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="105" y1="65" x2="110" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="68" r="5" fill="#888"/><line x1="80" y1="68" x2="40" y2="70" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="40" cy="70" r="4" fill="#888"/><line x1="40" y1="70" x2="30" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="68" x2="120" y2="70" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><circle cx="120" cy="70" r="4" fill="#888"/><line x1="120" y1="70" x2="140" y2="60" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  cowPose:`<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="88" x2="155" y2="88" stroke="#E8E8E8" stroke-width="2"/><circle cx="22" cy="42" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><path d="M 33,48 Q 80,62 110,48" stroke="#0A0A0A" stroke-width="6" fill="none" stroke-linecap="round"/><line x1="45" y1="52" x2="45" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="72" y1="58" x2="72" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="110" cy="48" r="5" fill="#888"/><line x1="98" y1="50" x2="98" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="118" y1="48" x2="118" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><path d="M 110,48 Q 130,35 138,28" stroke="#0A0A0A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+  catPose:`<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="88" x2="155" y2="88" stroke="#E8E8E8" stroke-width="2"/><circle cx="22" cy="55" r="11" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><path d="M 33,52 Q 80,28 110,52" stroke="#0A0A0A" stroke-width="6" fill="none" stroke-linecap="round"/><line x1="45" y1="48" x2="45" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="72" y1="36" x2="72" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="110" cy="52" r="5" fill="#888"/><line x1="98" y1="48" x2="98" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="118" y1="52" x2="118" y2="88" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><path d="M 110,52 Q 130,62 138,70" stroke="#0A0A0A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+  breathSit:`<svg viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="155" x2="80" y2="155" stroke="#E8E8E8" stroke-width="2"/><circle cx="40" cy="18" r="12" fill="#ccc" stroke="#0A0A0A" stroke-width="1.5"/><line x1="40" y1="30" x2="40" y2="90" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="42" x2="55" y2="55" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="55" x2="55" y2="68" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="55" r="4" fill="#888"/><line x1="40" y1="55" x2="22" y2="68" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="22" y1="68" x2="22" y2="80" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="68" r="4" fill="#888"/><circle cx="40" cy="90" r="5" fill="#888"/><line x1="40" y1="90" x2="15" y2="108" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="15" y1="108" x2="30" y2="130" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="90" x2="65" y2="108" stroke="#0A0A0A" stroke-width="5" stroke-linecap="round"/><line x1="65" y1="108" x2="50" y2="130" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/></svg>`,
+};
+
+// ============================================================
+// DATA
+// ============================================================
+const WEEKS = [
+  {title:"Semana 1 — Adaptación"},{title:"Semana 2 — Consolidación"},{title:"Semana 3 — Progresión"},
+  {title:"Semana 4 — Descarga"},{title:"Semana 5 — Fuerza base"},{title:"Semana 6 — Resistencia"},
+  {title:"Semana 7 — Potencia"},{title:"Semana 8 — Celebración"},
+];
+
+const BASE_EXERCISES = {
+  fuerza1:[
+    {id:"sentadilla",name:"Sentadilla",svgStart:'squatStand',svgEnd:'squatDown',startLabel:"De pie, pies a ancho de hombros",endLabel:"Baja controlada, rodillas afuera",desc:"El ejercicio reina para piernas y glúteos. Con hipermovilidad, no dejes que las rodillas colapsen hacia dentro.",phases:["Baja 3s","Pausa 1s","Sube 2s"],tip:"No bloquees las rodillas al subir. Para justo antes de extender del todo.",pillReps:"10–12",pillSets:"2",pillRest:"90s"},
+    {id:"puente",name:"Puente de glúteos",svgStart:'bridgeDown',svgEnd:'bridgeUp',startLabel:"Tumbada, rodillas dobladas",endLabel:"Cadera arriba, glúteos apretados",desc:"Activa glúteos y estabiliza la zona lumbar. Esencial para compensar las horas sentada.",phases:["Sube 2s","Aprieta 2s","Baja 3s"],tip:"Aprieta los glúteos en la cima. No arquees la espalda lumbar.",pillReps:"12–15",pillSets:"2",pillRest:"60s"},
+    {id:"flexion_pared",name:"Flexión en pared",svgStart:'wallPushStart',svgEnd:'wallPushEnd',startLabel:"Brazos extendidos hacia la pared",endLabel:"Codos doblados, cerca de la pared",desc:"Versión accesible de la flexión. Trabaja pecho, hombros y tríceps.",phases:["Acércate 3s","Pausa 1s","Empuja 2s"],tip:"No estires los codos del todo al empujar. Deja una ligera flexión siempre.",pillReps:"10–12",pillSets:"2",pillRest:"60s"},
+    {id:"bird_dog",name:"Bird Dog",svgStart:'birdDogStart',svgEnd:'birdDogEnd',startLabel:"A cuatro patas, espalda neutral",endLabel:"Brazo y pierna opuestos extendidos",desc:"Estabilización de core imprescindible con hipermovilidad. Protege la columna.",phases:["Extiende 2s","Mantén 3s","Vuelve 2s"],tip:"La espalda no se mueve. Imagina un vaso de agua encima. Alterna lado.",pillReps:"8 cada lado",pillSets:"2",pillRest:"60s"},
+  ],
+  fuerza2:[
+    {id:"zancada",name:"Zancada estática",svgStart:'lungeStand',svgEnd:'lungeDown',startLabel:"Un pie adelante, otro atrás",endLabel:"Rodilla trasera baja sin tocar el suelo",desc:"Trabaja cada pierna por separado, mejora el equilibrio.",phases:["Baja 3s","Pausa 1s","Sube 2s"],tip:"Apoya la mano en una silla si necesitas. Rodilla delantera detrás del pie.",pillReps:"8–10 cada pierna",pillSets:"2",pillRest:"90s"},
+    {id:"superman",name:"Superman",svgStart:'supermanDown',svgEnd:'supermanUp',startLabel:"Boca abajo, cuerpo relajado",endLabel:"Brazos y piernas elevados con control",desc:"Fortalece la cadena posterior. Compensa el trabajo sedentario.",phases:["Sube 2s","Mantén 2s","Baja 3s"],tip:"No fuerces el cuello. La mirada al suelo. Movimiento pequeño y controlado.",pillReps:"10–12",pillSets:"2",pillRest:"60s"},
+    {id:"remo",name:"Remo con toalla",svgStart:'rowStart',svgEnd:'rowEnd',startLabel:"Inclinada atrás, brazos extendidos",endLabel:"Tirada hacia la puerta, codos doblados",desc:"Trabaja espalda y bíceps con solo una toalla y una puerta.",phases:["Tira 2s","Aprieta 1s","Vuelve 3s"],tip:"Cuanto más inclinada, más difícil. Toalla enrollada en el pomo de la puerta.",pillReps:"10–12",pillSets:"2",pillRest:"60s"},
+    {id:"plancha",name:"Plancha en rodillas",svgStart:'plankPos',svgEnd:'plankPos',startLabel:"Cuerpo recto de cabeza a rodillas",endLabel:"Mantén respirando con control",desc:"Core antiextensión. El más eficiente para el abdomen profundo sin riesgo lumbar.",phases:["Estabiliza","Respira","Mantén"],tip:"No bloquees los codos. Abdomen activado, glúteos apretados.",pillReps:"20–30s",pillSets:"2",pillRest:"60s",pillTime:"Isométrico"},
+  ],
+  fuerza3:[
+    {id:"sumo",name:"Sentadilla sumo",svgStart:'sumoStand',svgEnd:'sumoDown',startLabel:"Pies muy abiertos, puntas afuera",endLabel:"Cadera baja, rodillas siguen puntas",desc:"Más interior de muslo y glúteo medio. Alternamos con la sentadilla normal.",phases:["Baja 3s","Pausa 1s","Sube 2s"],tip:"Pies más anchos que hombros, puntas a 45°. Rodillas siempre alineadas.",pillReps:"10–12",pillSets:"2",pillRest:"90s"},
+    {id:"flexion_silla",name:"Flexión en silla",svgStart:'wallPushStart',svgEnd:'wallPushEnd',startLabel:"Manos en silla, cuerpo inclinado",endLabel:"Baja el pecho hacia la silla",desc:"Un paso más difícil que la flexión en pared. Pecho, hombros, tríceps.",phases:["Baja 3s","Pausa 1s","Empuja 2s"],tip:"Cuerpo como una tabla. No hundan ni suban las caderas. No bloquees codos.",pillReps:"8–10",pillSets:"2",pillRest:"60s"},
+    {id:"bisagra",name:"Bisagra de cadera",svgStart:'hingStand',svgEnd:'hingDown',startLabel:"De pie, espalda neutral",endLabel:"Cadera atrás, torso paralelo al suelo",desc:"El movimiento más funcional. Enseña a doblar por la cadera, no por la espalda.",phases:["Bisagra 3s","Pausa","Sube 2s"],tip:"Imagen: cierra una puerta con el trasero. Espalda NEUTRAL siempre.",pillReps:"10–12",pillSets:"2",pillRest:"90s"},
+    {id:"dead_bug",name:"Dead Bug",svgStart:'deadBugStart',svgEnd:'deadBugEnd',startLabel:"Tumbada, brazos y piernas arriba",endLabel:"Extiende brazo y pierna opuestos",desc:"Core profundo tumbada. Muy seguro para la espalda.",phases:["Extiende 3s","Pausa 1s","Recoge 2s"],tip:"Espalda baja pegada al suelo siempre. Si se despega, reduce el recorrido.",pillReps:"6–8 cada lado",pillSets:"2",pillRest:"60s"},
+  ],
+  movilidad:[
+    {id:"toracica",name:"Apertura torácica",svgStart:'thoracicStart',svgEnd:'thoracicEnd',startLabel:"Espalda sobre el rodillo",endLabel:"Brazos abren atrás, pecho se abre",desc:"Contrarresta horas de postura sedentaria. Moviliza la espalda media.",phases:["Inspira","Abre suave","Espira"],tip:"Movimientos ACTIVOS y controlados. No te dejes caer pasivamente.",pillReps:"8–10",pillSets:"2",pillRest:"30s"},
+    {id:"9090",name:"90/90 de cadera",svgStart:'hip9090',svgEnd:'hip9090',startLabel:"Sentada, piernas en 90° cada una",endLabel:"Inclínate activamente hacia adelante",desc:"Movilidad de cadera. Alivia la tensión de estar sentada.",phases:["Siéntate","Inclínate","Respira"],tip:"No hasta donde puedes — hasta donde sientes el trabajo activo.",pillReps:"5 cada lado",pillSets:"1",pillRest:"30s",pillTime:"30s/posición"},
+    {id:"gato_vaca",name:"Gato-vaca",svgStart:'cowPose',svgEnd:'catPose',startLabel:"Vaca: espalda baja",endLabel:"Gato: espalda redonda",desc:"Movimiento suave para calentar y descomprimir la columna.",phases:["Vaca 2s","Pausa","Gato 2s"],tip:"Inspira al bajar (vaca), espira al redondear (gato). Empieza desde la cola.",pillReps:"10 ciclos",pillSets:"2",pillRest:"—"},
+    {id:"respiracion",name:"Respiración diafragmática",svgStart:'breathSit',svgEnd:'breathSit',startLabel:"Sentada, mano en pecho y vientre",endLabel:"Vientre se expande al inspirar",desc:"Reduce el cortisol. Especialmente beneficioso en perimenopausia.",phases:["Inspira 4s","Mantén 2s","Espira 6s"],tip:"5–10 min diarios tienen efecto real sobre el estrés hormonal.",pillReps:"10 ciclos",pillSets:"1",pillRest:"—",pillTime:"~5 min"},
+  ],
+};
+
+const WEEK_DAYS=[
+  {day:"L",label:"Lunes",type:"fuerza1",title:"Fuerza — Piernas y Core",desc:"Sentadilla · Puente · Flexión · Bird Dog"},
+  {day:"M",label:"Martes",type:"descanso",title:"Descanso activo",desc:"Camina suave 20–30 min"},
+  {day:"X",label:"Miércoles",type:"fuerza2",title:"Fuerza — Espalda y Core",desc:"Zancada · Superman · Remo · Plancha"},
+  {day:"J",label:"Jueves",type:"descanso",title:"Descanso activo",desc:"Estiramientos suaves o caminar"},
+  {day:"V",label:"Viernes",type:"fuerza3",title:"Fuerza — Cuerpo completo",desc:"Sumo · Flexión · Bisagra · Dead Bug"},
+  {day:"S",label:"Sábado",type:"movilidad",title:"Movilidad y respiración",desc:"Torácica · 90/90 · Gato-vaca · Respiración"},
+  {day:"D",label:"Domingo",type:"descanso",title:"Descanso completo",desc:"Recuperación total"},
+];
+
+// STATE
+let currentWeek=0, currentDay=0;
+let completed={};
+try{const s=localStorage.getItem('wk_min');if(s)completed=JSON.parse(s);}catch(e){}
+function save(){try{localStorage.setItem('wk_min',JSON.stringify(completed));}catch(e){}}
+function isCompleted(w,d,id){return !!(completed[w]&&completed[w][d]&&completed[w][d][id]);}
+function setCompleted(w,d,id,v){if(!completed[w])completed[w]={};if(!completed[w][d])completed[w][d]={};completed[w][d][id]=v;save();}
+function getExercises(t){return BASE_EXERCISES[t]||[];}
+function getWeekSets(wi){if(wi<2)return'2';if(wi===3)return'2';if(wi<6)return'3';return'4';}
+
+// GAMIFICATION
+const LEVELS=[
+  {name:"Principiante",icon:"🌱",sub:"Cada rep cuenta",xp:0},
+  {name:"En marcha",icon:"🚀",sub:"Ya no hay vuelta atrás",xp:100},
+  {name:"Guerrera",icon:"⚔️",sub:"El dolor es temporal",xp:250},
+  {name:"Fuerte",icon:"💪",sub:"Tu cuerpo puede más",xp:500},
+  {name:"Imparable",icon:"🔥",sub:"Sin excusas. Solo resultados.",xp:900},
+];
+const BADGES=[
+  {id:"first",icon:"⭐",label:"Primera sesión",desc:"Completaste tu primera sesión.",xp:50,check:g=>g.totalSessions>=1},
+  {id:"week1",icon:"🥇",label:"Semana 1",desc:"Semana 1 completada.",xp:80,check:g=>g.weeksCompleted>=1},
+  {id:"streak3",icon:"🔥",label:"Racha 3 días",desc:"3 días seguidos entrenando.",xp:60,check:g=>g.maxStreak>=3},
+  {id:"streak7",icon:"💥",label:"Racha 7 días",desc:"Una semana sin parar.",xp:150,check:g=>g.maxStreak>=7},
+  {id:"s10",icon:"🏆",label:"10 sesiones",desc:"El hábito ya es tuyo.",xp:100,check:g=>g.totalSessions>=10},
+  {id:"week4",icon:"💎",label:"Un mes",desc:"Un mes entrenando.",xp:200,check:g=>g.weeksCompleted>=4},
+  {id:"all",icon:"👑",label:"Programa",desc:"8 semanas completadas.",xp:500,check:g=>g.weeksCompleted>=8},
+  {id:"mob5",icon:"🧘",label:"Movilidad x5",desc:"5 sesiones de movilidad.",xp:70,check:g=>g.mobilitySessions>=5},
+];
+const QUOTES=[
+  "El músculo no se construye en el gimnasio, se construye en la constancia.",
+  "Hoy elegiste moverte. Mañana lo agradecerás.",
+  "Cada sesión te hace más fuerte de lo que eras ayer.",
+  "No hay excusas. Solo resultados.",
+  "Tu cuerpo puede más de lo que tu mente cree.",
+  "La fuerza no es un talento, es una decisión diaria.",
+];
+let gState={xp:0,totalSessions:0,weeksCompleted:0,mobilitySessions:0,maxStreak:0,currentStreak:0,lastTrainedDate:null,earnedBadges:[]};
+try{const gs=localStorage.getItem('gs_min');if(gs)gState={...gState,...JSON.parse(gs)};}catch(e){}
+function saveG(){try{localStorage.setItem('gs_min',JSON.stringify(gState));}catch(e){}}
+function getCurrentLevel(){let l=LEVELS[0];for(let x of LEVELS){if(gState.xp>=x.xp)l=x;}return l;}
+function getNextLevel(){for(let i=0;i<LEVELS.length-1;i++){if(gState.xp<LEVELS[i+1].xp)return LEVELS[i+1];}return null;}
+function updateStreak(){
+  const today=new Date().toDateString();
+  if(gState.lastTrainedDate===today)return;
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  gState.currentStreak=gState.lastTrainedDate===yesterday?gState.currentStreak+1:1;
+  gState.maxStreak=Math.max(gState.maxStreak,gState.currentStreak);
+  gState.lastTrainedDate=today;
+}
+function checkBadges(){
+  const nb=[];
+  for(let b of BADGES){if(!gState.earnedBadges.includes(b.id)&&b.check(gState)){gState.earnedBadges.push(b.id);gState.xp+=b.xp;nb.push(b);}}
+  return nb;
+}
+function renderGami(){
+  const lvl=getCurrentLevel(),next=getNextLevel();
+  document.getElementById('level-icon').textContent=lvl.icon;
+  document.getElementById('level-name').textContent=lvl.name;
+  document.getElementById('level-sub').textContent=lvl.sub;
+  let pct=100,lbl='Nivel máximo';
+  if(next){pct=Math.round((gState.xp-lvl.xp)/(next.xp-lvl.xp)*100);lbl=`${gState.xp} / ${next.xp} XP`;}
+  document.getElementById('xp-fill').style.width=pct+'%';
+  document.getElementById('xp-label').textContent=lbl;
+  document.getElementById('streak-num').textContent=gState.currentStreak;
+  document.getElementById('streak-record').textContent=`Récord: ${gState.maxStreak} días`;
+  const se=gState.currentStreak>=7?'🔥':gState.currentStreak>=3?'💪':gState.currentStreak>=1?'⚡':'—';
+  document.getElementById('streak-emoji').textContent=se;
+  const grid=document.getElementById('badges-grid');grid.innerHTML='';
+  for(let b of BADGES){
+    const earned=gState.earnedBadges.includes(b.id);
+    const item=document.createElement('div');item.className='badge-item';
+    item.innerHTML=`<div class="badge-icon ${earned?'earned':'locked'}">${b.icon}</div><div class="badge-label">${b.label}</div>`;
+    grid.appendChild(item);
+  }
+}
+function spawnConfetti(){
+  const colors=['#0A0A0A','#888','#E8E8E8','#ccc','#444'];
+  for(let i=0;i<30;i++){
+    const c=document.createElement('div');c.className='confetti-piece';
+    c.style.left=Math.random()*100+'vw';c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=Math.random()*0.8+'s';c.style.animationDuration=(1+Math.random()*0.8)+'s';
+    c.style.borderRadius=Math.random()>0.5?'50%':'2px';document.body.appendChild(c);
+    setTimeout(()=>c.remove(),2500);
+  }
+}
+function showCelebration(xpGained,newBadges){
+  const msg=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById('cel-emoji').textContent=newBadges.length>0?'✦':'✓';
+  document.getElementById('cel-title').textContent=newBadges.length>0?'Nueva insignia':'Sesión completada';
+  document.getElementById('cel-msg').textContent=msg;
+  document.getElementById('cel-xp').textContent=`+${xpGained} XP`;
+  const ba=document.getElementById('cel-badge-area');ba.innerHTML='';
+  for(let b of newBadges){ba.innerHTML+=`<div class="cel-badge"><span class="cel-badge-icon">${b.icon}</span><div class="cel-badge-name">${b.label}</div><div class="cel-badge-desc">${b.desc}</div></div>`;}
+  document.getElementById('celebration').classList.add('show');
+  spawnConfetti();
+}
+function closeCelebration(){document.getElementById('celebration').classList.remove('show');renderGami();}
+function showSection(name){
+  document.getElementById('section-entrena').style.display=name==='entrena'?'block':'none';
+  document.getElementById('section-logros').style.display=name==='logros'?'block':'none';
+  document.getElementById('tab-entrena').classList.toggle('active',name==='entrena');
+  document.getElementById('tab-logros').classList.toggle('active',name==='logros');
+  if(name==='logros')renderGami();
+}
+
+function triggerSessionComplete(dayType){
+  let xpGained=dayType==='movilidad'?15:20;
+  gState.xp+=xpGained;gState.totalSessions++;
+  if(dayType==='movilidad')gState.mobilitySessions++;
+  updateStreak();
+  const allWeek=WEEK_DAYS.every((d,i)=>{const ex=getExercises(d.type);return ex.length===0||ex.every(e=>isCompleted(currentWeek,i,e.id));});
+  if(allWeek){gState.weeksCompleted=Math.max(gState.weeksCompleted,currentWeek+1);xpGained+=50;gState.xp+=50;}
+  const nb=checkBadges();saveG();showCelebration(xpGained,nb);
+}
+
+// RENDER
+function renderDayTabs(){
+  const c=document.getElementById('day-tabs');c.innerHTML='';
+  WEEK_DAYS.forEach((d,i)=>{
+    const exs=getExercises(d.type);
+    const allDone=exs.length>0&&exs.every(e=>isCompleted(currentWeek,i,e.id));
+    const t=document.createElement('button');
+    t.className='day-tab'+(i===currentDay?' active':'')+(allDone?' done-day':'');
+    t.innerHTML=`<span class="day-tab-name">${d.day}</span><span class="day-tab-dot"></span>`;
+    t.onclick=()=>{currentDay=i;render();};
+    c.appendChild(t);
+  });
+}
+function renderProgress(){
+  let total=0,done=0;
+  WEEK_DAYS.forEach((d,i)=>{getExercises(d.type).forEach(e=>{total++;if(isCompleted(currentWeek,i,e.id))done++;});});
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=`${done} / ${total}`;
+}
+function renderDayContent(){
+  const c=document.getElementById('day-content');c.innerHTML='';
+  const d=WEEK_DAYS[currentDay];
+  const h=document.createElement('div');h.className='day-header';
+  let tag='';
+  if(d.type.startsWith('fuerza'))tag='Fuerza';
+  else if(d.type==='movilidad')tag='Movilidad';
+  else tag='Descanso';
+  h.innerHTML=`<h3>${d.title}</h3><p>${d.desc}</p><span class="day-type-tag">${tag}</span>`;
+  c.appendChild(h);
+  const exs=getExercises(d.type);
+  if(exs.length===0){
+    const r=document.createElement('div');r.className='rest-card';
+    let icon=d.day==='D'?'○':'◌';
+    let msg=d.day==='D'?'Descanso completo. Nada de ejercicio hoy. Tu cuerpo se recupera y crece.':'Descanso activo. Si quieres, sal a caminar 20–30 minutos a ritmo suave.';
+    r.innerHTML=`<span class="rest-icon">${d.day==='D'?'🌿':'🚶'}</span><h3>${d.title}</h3><p>${msg}</p>`;
+    c.appendChild(r);return;
+  }
+  if(d.type.startsWith('fuerza')){
+    const n=document.createElement('div');n.className='notes-card';
+    n.innerHTML=`<h4>Antes de empezar</h4><ul>
+      <li>Calienta 5 min: caminata en el sitio y rotaciones de hombros y caderas</li>
+      <li>Espira en el esfuerzo, inspira al volver</li>
+      <li>Si notas dolor (no molestia), para y descansa</li>
+      <li>Con talasemia: si te mareas o falta mucho el aire, siéntate</li>
+    </ul>`;c.appendChild(n);
+  }
+  exs.forEach((ex,idx)=>{
+    const done=isCompleted(currentWeek,currentDay,ex.id);
+    const card=document.createElement('div');card.className='exercise-card'+(done?' completed':'');
+    const sets=getWeekSets(currentWeek);
+    const phases=ex.phases.map((p,i)=>`<div class="phase"><span class="phase-n">${['Fase 1','Fase 2','Fase 3'][i]}</span><span class="phase-t">${p}</span></div>`).join('');
+    const svgS=SVG[ex.svgStart]||'',svgE=SVG[ex.svgEnd]||'',same=ex.svgStart===ex.svgEnd;
+    const visual=`<div class="visual-container"><div class="visual-label-row">Cómo hacerlo</div><div class="poses-row">
+      <div class="pose-block">${svgS}<span class="pose-tag">Inicio</span><div class="pose-desc">${ex.startLabel}</div></div>
+      ${same?'':`<div class="arrow-sep">→</div><div class="pose-block">${svgE}<span class="pose-tag">Final</span><div class="pose-desc">${ex.endLabel}</div></div>`}
+    </div></div>`;
+    card.innerHTML=`
+      <div class="card-top" onclick="toggleCard('${ex.id}')">
+        <div class="exercise-num">${done?'✓':idx+1}</div>
+        <div class="card-info">
+          <h4>${ex.name}</h4>
+          <div class="card-meta">
+            <div class="meta-item"><span>${ex.pillReps}</span> reps</div>
+            <div class="meta-item"><span>${sets}</span> series</div>
+            <div class="meta-item"><span>${ex.pillRest}</span> desc.</div>
+            ${ex.pillTime?`<div class="meta-item"><span>${ex.pillTime}</span></div>`:''}
+          </div>
+        </div>
+        <button class="check-btn ${done?'checked':''}" onclick="event.stopPropagation();toggleDone('${ex.id}')" id="btn-${ex.id}">✓</button>
+      </div>
+      <div class="card-detail" id="detail-${ex.id}">
+        <div class="detail-inner">
+          <p class="detail-text">${ex.desc}</p>
+          ${visual}
+          <div class="phases">${phases}</div>
+          <div class="tip-box">${ex.tip}</div>
+        </div>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+function toggleCard(id){document.getElementById('detail-'+id).classList.toggle('open');}
+function toggleDone(id){
+  const wasAllDone=getExercises(WEEK_DAYS[currentDay].type).every(e=>isCompleted(currentWeek,currentDay,e.id));
+  const cur=isCompleted(currentWeek,currentDay,id);
+  setCompleted(currentWeek,currentDay,id,!cur);render();
+  if(!cur&&!wasAllDone){
+    const exs=getExercises(WEEK_DAYS[currentDay].type);
+    if(exs.every(e=>isCompleted(currentWeek,currentDay,e.id))&&exs.length>0){
+      triggerSessionComplete(WEEK_DAYS[currentDay].type);
+    }
+  }
+}
+function resetDay(){if(completed[currentWeek]&&completed[currentWeek][currentDay]){completed[currentWeek][currentDay]={};save();render();}}
+function completeDay(){
+  const dayType=WEEK_DAYS[currentDay].type;
+  const exs=getExercises(dayType);
+  const wasAllDone=exs.length>0&&exs.every(e=>isCompleted(currentWeek,currentDay,e.id));
+  exs.forEach(e=>setCompleted(currentWeek,currentDay,e.id,true));render();
+  if(!wasAllDone&&exs.length>0)triggerSessionComplete(dayType);
+}
+function changeWeek(dir){
+  currentWeek=Math.max(0,Math.min(7,currentWeek+dir));
+  document.getElementById('week-title').textContent=WEEKS[currentWeek].title;
+  document.getElementById('prev-week').disabled=currentWeek===0;
+  document.getElementById('next-week').disabled=currentWeek===7;
+  render();
+}
+function render(){
+  document.getElementById('week-title').textContent=WEEKS[currentWeek].title;
+  renderDayTabs();renderDayContent();renderProgress();
+}
+const today=new Date().getDay();
+const dayMap=[6,0,1,2,3,4,5];
+currentDay=dayMap[today]!==undefined?dayMap[today]:0;
+render();
+</script>
+</body>
+</html>
